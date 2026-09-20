@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,12 +13,12 @@
   values (Project Settings → API in your Supabase dashboard).
 ============================================================= -->
 <script>
-  const SUPABASE_URL = "https://tualeosesvnfdluzjujr.supabase.co";
+ const SUPABASE_URL = "https://tualeosesvnfdluzjujr.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWxlb3Nlc3ZuZmRsdXpqdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4ODE5ODIsImV4cCI6MjEwNTQ1Nzk4Mn0.juqTCS0aogVRdPwENEKCDuhPasZM-eY_vGQRdBr0j_g";
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=Heebo:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -49,6 +49,8 @@
     padding-top:env(safe-area-inset-top,0px);
     padding-bottom:env(safe-area-inset-bottom,0px);
   }
+  html[lang="he"] body{ font-family:'Heebo', system-ui, sans-serif; }
+  html[lang="he"] h1,html[lang="he"] h2,html[lang="he"] h3{ font-family:'Heebo', sans-serif; font-weight:600; }
   h1,h2,h3{font-family:'Fraunces', serif; font-weight:600; margin:0;}
   button{font-family:inherit;}
   .app-shell{max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; background:var(--bg);}
@@ -65,6 +67,15 @@
   }
   #authScreen h1{font-size:28px; line-height:1.2;}
   #authScreen p{color:var(--ink-soft); font-size:15px; max-width:280px; margin:6px 0 26px;}
+  .lang-switch{
+    display:flex; gap:6px; margin-bottom:22px; background:var(--surface); border:1px solid var(--line);
+    border-radius:999px; padding:3px;
+  }
+  .lang-switch button{
+    border:none; background:transparent; padding:6px 14px; border-radius:999px; font-size:13px;
+    color:var(--ink-soft); cursor:pointer;
+  }
+  .lang-switch button.active{background:var(--teal); color:#fff;}
   .google-btn{
     display:flex; align-items:center; gap:10px; background:#fff; color:#3c3c3c;
     border:1px solid var(--line); border-radius:999px; padding:13px 22px;
@@ -77,13 +88,19 @@
   header.top{
     display:flex; align-items:center; justify-content:space-between;
     padding:calc(16px + env(safe-area-inset-top,0px)) 20px 14px;
-    padding-top:16px;
+    padding-top:16px; gap:10px;
   }
   header.top .title h2{font-size:20px;}
   header.top .title span{font-size:12px; color:var(--ink-soft);}
+  header.top .right{display:flex; align-items:center; gap:8px;}
+  .lang-pill{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-size:12px;
+    border-radius:999px; padding:7px 11px; cursor:pointer;
+  }
   .avatar-btn{
     width:36px; height:36px; border-radius:50%; border:none; overflow:hidden; cursor:pointer;
     background:var(--teal); color:#fff; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
   }
   .avatar-btn img{width:100%; height:100%; object-fit:cover;}
 
@@ -109,9 +126,6 @@
   main{flex:1; padding:4px 20px 100px; overflow-y:auto;}
   .view{display:none;}
   .view.active{display:block;}
-
-  .section-label{font-size:12px; text-transform:none; color:var(--ink-soft); margin:18px 0 8px; letter-spacing:.2px;}
-  .section-label:first-child{margin-top:6px;}
 
   .toolbar-row{display:flex; gap:8px; margin-bottom:6px;}
   .toolbar-row .add-toggle{margin-bottom:0; flex:1;}
@@ -141,26 +155,34 @@
     border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-family:inherit; font-size:13px;
     color:var(--ink-soft); margin-bottom:10px; background:transparent;
   }
-  .composer .row{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:8px;}
+  .composer .row{display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-top:8px;}
   .btn{
     border:none; border-radius:10px; padding:9px 16px; font-size:14px; font-weight:500; cursor:pointer;
   }
   .btn.primary{background:var(--teal); color:#fff;}
   .btn.ghost{background:transparent; color:var(--ink-soft);}
+  .btn.recording{background:var(--clay-soft); color:var(--clay);}
 
   .photo-preview{position:relative; margin:8px 0; display:none;}
   .photo-preview.show{display:block;}
   .photo-preview img{width:100%; border-radius:10px; max-height:220px; object-fit:cover; display:block;}
   .photo-preview .remove-photo{
-    position:absolute; top:8px; right:8px; background:rgba(20,18,14,.6); color:#fff; border:none;
+    position:absolute; top:8px; inset-inline-end:8px; background:rgba(20,18,14,.6); color:#fff; border:none;
     border-radius:50%; width:26px; height:26px; cursor:pointer; font-size:15px; line-height:1;
   }
+  .audio-preview{display:none; align-items:center; gap:8px; margin:8px 0;}
+  .audio-preview.show{display:flex;}
+  .audio-preview audio{flex:1; height:36px;}
+  .audio-preview button{background:none; border:none; color:var(--clay); cursor:pointer; font-size:16px;}
+  .draft-note{font-size:11.5px; color:var(--ink-soft); margin-top:4px; display:none;}
+  .draft-note.show{display:block;}
 
   .card{
     background:var(--surface); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
     border:1px solid var(--line);
   }
   .card-photo{width:100%; border-radius:10px; max-height:260px; object-fit:cover; display:block; margin-bottom:10px; cursor:pointer;}
+  .card audio{width:100%; margin-bottom:10px; height:36px;}
   .card .meta{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
   .mini-avatar{width:24px; height:24px; border-radius:50%; background:var(--teal); color:#fff; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;}
   .mini-avatar img{width:100%; height:100%; object-fit:cover;}
@@ -168,7 +190,7 @@
   .meta .dot{color:var(--line);}
   .meta .time{font-size:12.5px; color:var(--ink-soft);}
   .badge{
-    font-size:11px; padding:2px 8px; border-radius:999px; font-weight:500; margin-left:auto;
+    font-size:11px; padding:2px 8px; border-radius:999px; font-weight:500; margin-inline-start:auto;
   }
   .badge.day{background:var(--teal-soft); color:var(--teal);}
   .badge.note{background:var(--gold-soft); color:var(--gold);}
@@ -208,8 +230,9 @@
   .chair-row{
     background:var(--surface); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
     border:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+    gap:10px;
   }
-  .chair-row h3{font-size:15.5px; font-weight:500; font-family:'Work Sans';}
+  .chair-row h3{font-size:15.5px; font-weight:500; font-family:inherit;}
   .chair-row .sub{font-size:12.5px; color:var(--ink-soft); margin-top:3px;}
   .status-pill{font-size:11.5px; padding:4px 10px; border-radius:999px; font-weight:500; white-space:nowrap;}
   .status-pill.ok{background:var(--good-soft); color:var(--good);}
@@ -222,7 +245,7 @@
   .back-row .back-link{cursor:pointer;}
   .back-row .delete-chair{color:var(--clay); cursor:pointer; font-size:13px; background:none; border:none;}
   .chair-title input{
-    width:100%; border:none; background:transparent; font-family:'Fraunces',serif; font-size:24px;
+    width:100%; border:none; background:transparent; font-family:inherit; font-size:24px;
     font-weight:600; color:var(--ink); outline:none; padding:2px 0; margin-bottom:12px;
   }
   .chair-photo-row{margin-bottom:16px;}
@@ -271,7 +294,7 @@
   .toast{
     position:fixed; bottom:78px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
     padding:9px 16px; border-radius:999px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .25s;
-    z-index:60;
+    z-index:60; max-width:85%; text-align:center;
   }
   .toast.show{opacity:1;}
 </style>
@@ -282,12 +305,16 @@
 
   <!-- AUTH -->
   <div id="authScreen">
+    <div class="lang-switch">
+      <button data-lang-btn="en">EN</button>
+      <button data-lang-btn="he">עברית</button>
+    </div>
     <div class="mark">G</div>
-    <h1>Ghana Trip</h1>
-    <p>A shared space for day summaries, notes, and chair inspections — for everyone on the team, home and away.</p>
+    <h1 data-i18n="appTitle">Ghana Trip</h1>
+    <p data-i18n="tagline">A shared space for day summaries, notes, and chair inspections — for everyone on the team, home and away.</p>
     <button class="google-btn" id="googleSignIn">
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.9v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.9A9 9 0 0 0 0 9c0 1.45.35 2.82.9 4.03l3.05-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .9 4.97l3.05 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
-      Sign in with Google
+      <span data-i18n="signInGoogle">Sign in with Google</span>
     </button>
     <div id="authError"></div>
   </div>
@@ -296,10 +323,13 @@
   <div id="app" style="display:none; flex:1; display:none; flex-direction:column;">
     <header class="top">
       <div class="title">
-        <h2>Ghana Trip</h2>
+        <h2 data-i18n="appTitle">Ghana Trip</h2>
         <span id="dayCount"></span>
       </div>
-      <button class="avatar-btn" id="avatarBtn"></button>
+      <div class="right">
+        <button class="lang-pill" id="langToggleBtn">עברית</button>
+        <button class="avatar-btn" id="avatarBtn"></button>
+      </div>
     </header>
 
     <main>
@@ -311,19 +341,22 @@
       <!-- DAY SUMMARIES -->
       <div class="view" id="daysView">
         <div class="toolbar-row">
-          <button class="add-toggle" data-composer="dayComposer"><span class="plus">+</span> Add a day summary</button>
-          <button class="export-btn" id="exportDaysBtn">⭳ Export</button>
+          <button class="add-toggle" data-composer="dayComposer"><span class="plus">+</span> <span data-i18n="addDay">Add a day summary</span></button>
+          <button class="export-btn" id="exportDaysBtn">⭳ <span data-i18n="export">Export</span></button>
         </div>
         <div class="composer" id="dayComposer">
           <input type="date" id="dayDate">
-          <textarea id="dayText" placeholder="What happened today?"></textarea>
+          <textarea id="dayText" data-i18n-placeholder="dayPlaceholder" placeholder="What happened today?"></textarea>
+          <div class="draft-note" id="dayDraftNote" data-i18n="draftRestored">Draft restored from your last visit</div>
           <div class="photo-preview" id="dayPhotoPreview"><img id="dayPhotoImg"><button class="remove-photo" id="dayPhotoRemove">×</button></div>
+          <div class="audio-preview" id="dayAudioPreview"><audio id="dayAudioPlayer" controls></audio><button id="dayAudioRemove">✕</button></div>
           <input type="file" id="dayPhotoInput" accept="image/*" style="display:none">
           <div class="row">
-            <button class="btn ghost" id="dayPhotoBtn">📷 Photo</button>
+            <button class="btn ghost" id="dayPhotoBtn">📷 <span data-i18n="photo">Photo</span></button>
+            <button class="btn ghost" id="dayRecordBtn">🎤 <span data-i18n="record">Record</span></button>
             <div class="spacer"></div>
-            <button class="btn ghost" data-close="dayComposer">Cancel</button>
-            <button class="btn primary" id="saveDayBtn">Save</button>
+            <button class="btn ghost" data-close="dayComposer" data-i18n="cancel">Cancel</button>
+            <button class="btn primary" id="saveDayBtn" data-i18n="save">Save</button>
           </div>
         </div>
         <div id="daysList"></div>
@@ -331,16 +364,19 @@
 
       <!-- NOTES -->
       <div class="view" id="notesView">
-        <button class="add-toggle" data-composer="noteComposer"><span class="plus">+</span> Add a thought or note</button>
+        <button class="add-toggle" data-composer="noteComposer"><span class="plus">+</span> <span data-i18n="addNote">Add a thought or note</span></button>
         <div class="composer" id="noteComposer">
-          <textarea id="noteText" placeholder="Something worth remembering..."></textarea>
+          <textarea id="noteText" data-i18n-placeholder="notePlaceholder" placeholder="Something worth remembering..."></textarea>
+          <div class="draft-note" id="noteDraftNote" data-i18n="draftRestored">Draft restored from your last visit</div>
           <div class="photo-preview" id="notePhotoPreview"><img id="notePhotoImg"><button class="remove-photo" id="notePhotoRemove">×</button></div>
+          <div class="audio-preview" id="noteAudioPreview"><audio id="noteAudioPlayer" controls></audio><button id="noteAudioRemove">✕</button></div>
           <input type="file" id="notePhotoInput" accept="image/*" style="display:none">
           <div class="row">
-            <button class="btn ghost" id="notePhotoBtn">📷 Photo</button>
+            <button class="btn ghost" id="notePhotoBtn">📷 <span data-i18n="photo">Photo</span></button>
+            <button class="btn ghost" id="noteRecordBtn">🎤 <span data-i18n="record">Record</span></button>
             <div class="spacer"></div>
-            <button class="btn ghost" data-close="noteComposer">Cancel</button>
-            <button class="btn primary" id="saveNoteBtn">Save</button>
+            <button class="btn ghost" data-close="noteComposer" data-i18n="cancel">Cancel</button>
+            <button class="btn primary" id="saveNoteBtn" data-i18n="save">Save</button>
           </div>
         </div>
         <div id="notesList"></div>
@@ -349,8 +385,8 @@
       <!-- CHAIRS LIST -->
       <div class="view" id="chairsView">
         <div class="toolbar-row">
-          <button class="add-toggle" id="newChairBtn"><span class="plus">+</span> Examine a new chair</button>
-          <button class="export-btn" id="exportChairsBtn">⭳ Export</button>
+          <button class="add-toggle" id="newChairBtn"><span class="plus">+</span> <span data-i18n="examineChair">Examine a new chair</span></button>
+          <button class="export-btn" id="exportChairsBtn">⭳ <span data-i18n="export">Export</span></button>
         </div>
         <div id="chairsList"></div>
       </div>
@@ -358,36 +394,36 @@
       <!-- CHAIR DETAIL -->
       <div class="view" id="chairDetailView">
         <div class="back-row">
-          <span class="back-link" id="backToChairs">← All chairs</span>
-          <button class="delete-chair" id="deleteChairBtn">Delete chair</button>
+          <span class="back-link" id="backToChairs" data-i18n="allChairsBack">← All chairs</span>
+          <button class="delete-chair" id="deleteChairBtn" data-i18n="deleteChair">Delete chair</button>
         </div>
-        <div class="chair-title"><input id="chairNameInput" placeholder="Chair name"></div>
+        <div class="chair-title"><input id="chairNameInput" data-i18n-placeholder="chairNamePlaceholder" placeholder="Chair name"></div>
         <div class="chair-photo-row">
           <div class="photo-preview" id="chairPhotoPreview"><img id="chairPhotoImg"><button class="remove-photo" id="chairPhotoRemove">×</button></div>
           <input type="file" id="chairPhotoInput" accept="image/*" style="display:none">
-          <button class="btn ghost" id="chairPhotoBtn" style="border:1px solid var(--line);">📷 Add a photo of this chair</button>
+          <button class="btn ghost" id="chairPhotoBtn" style="border:1px solid var(--line);">📷 <span data-i18n="addChairPhoto">Add a photo of this chair</span></button>
         </div>
         <div id="chairItemsList"></div>
-        <button class="add-item-btn" id="addChecklistItemBtn">+ Add checklist item</button>
+        <button class="add-item-btn" id="addChecklistItemBtn" data-i18n="addChecklistItem">+ Add checklist item</button>
       </div>
     </main>
 
     <nav class="bottom">
       <button data-view="feedView" class="nav-btn active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-        Feed
+        <span data-i18n="navFeed">Feed</span>
       </button>
       <button data-view="daysView" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-        Days
+        <span data-i18n="navDays">Days</span>
       </button>
       <button data-view="notesView" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.2 6.8H21l-5.6 4.1 2.1 6.9L12 15.8 6.5 19.8l2.1-6.9L3 8.8h6.8z"/></svg>
-        Notes
+        <span data-i18n="navNotes">Notes</span>
       </button>
       <button data-view="chairsView" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v9H6zM6 13v7M18 13v7M8 21h1M15 21h1"/></svg>
-        Chairs
+        <span data-i18n="navChairs">Chairs</span>
       </button>
     </nav>
   </div>
@@ -396,8 +432,8 @@
 <div id="signOutSheet">
   <div class="sheet">
     <p id="whoAmI"></p>
-    <button class="action" id="signOutBtn">Sign out</button>
-    <button class="cancel" id="cancelSheet">Cancel</button>
+    <button class="action" id="signOutBtn" data-i18n="signOut">Sign out</button>
+    <button class="cancel" id="cancelSheet" data-i18n="cancel">Cancel</button>
   </div>
 </div>
 
@@ -407,24 +443,180 @@
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let currentChairId = null;
-const DEFAULT_ITEMS = ["Seat","Backrest","Legs & frame","Joints & screws","Armrests","Upholstery / finish","Stability (wobble test)"];
 const REACTIONS = ["❤️","👍","😂","👏","😮"];
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024; // 8MB
 let dayPhotoFile = null, notePhotoFile = null;
+let dayAudioBlob = null, noteAudioBlob = null;
 
+/* ============================================================
+   Translations
+============================================================= */
+const DEFAULT_ITEMS = {
+  en: ["Seat","Backrest","Legs & frame","Joints & screws","Armrests","Upholstery / finish","Stability (wobble test)"],
+  he: ["מושב","משענת גב","רגליים ומסגרת","חיבורים וברגים","משענות יד","ריפוד / גימור","יציבות (בדיקת התנדנדות)"]
+};
+const T = {
+  en: {
+    appTitle:"Ghana Trip",
+    tagline:"A shared space for day summaries, notes, and chair inspections — for everyone on the team, home and away.",
+    signInGoogle:"Sign in with Google",
+    signedInAs:"Signed in as ",
+    signOut:"Sign out",
+    cancel:"Cancel",
+    save:"Save",
+    export:"Export",
+    photo:"Photo",
+    record:"Record",
+    stop:"Stop",
+    navFeed:"Feed", navDays:"Days", navNotes:"Notes", navChairs:"Chairs",
+    addDay:"Add a day summary",
+    addNote:"Add a thought or note",
+    examineChair:"Examine a new chair",
+    dayPlaceholder:"What happened today?",
+    notePlaceholder:"Something worth remembering...",
+    draftRestored:"Draft restored from your last visit",
+    addChairPhoto:"Add a photo of this chair",
+    allChairsBack:"← All chairs",
+    deleteChair:"Delete chair",
+    addChecklistItem:"+ Add checklist item",
+    chairNamePlaceholder:"Chair name",
+    good:"Good", problem:"Has a problem",
+    problemPlaceholder:"What's wrong with it?",
+    addPhoto:"Add photo", changePhoto:"Change photo",
+    writeComment:"Write a comment...",
+    send:"Send",
+    edit:"✏️ Edit",
+    badgeDay:"Day summary", badgeNote:"Thought",
+    comment:"comment", comments:"comments",
+    emptyDays:"No day summaries yet — be the first to share how today went.",
+    emptyNotes:"No notes yet — jot down a thought worth keeping.",
+    emptyChairs:"No chairs examined yet. Start with the one in front of you.",
+    emptyFeed:"Nothing shared yet. Add a day summary, a note, or start examining a chair to get things going.",
+    noChecklist:"No checklist items yet.",
+    updates:"updates from the team", update:"update from the team",
+    checklistItems:"checklist item", checklistItemsPl:"checklist items",
+    allGood:"All good", issue:"issue", issues:"issues", toCheck:"to check",
+    justNow:"just now", minAgo:"m ago", hourAgo:"h ago", yesterday:"yesterday",
+    toastSaved:"Saved", toastEntrySaved:"Entry saved", toastDaySaved:"Day summary saved", toastNoteSaved:"Note saved",
+    toastUpdated:"Updated", toastDeleted:"Deleted",
+    toastPhotoTooLarge:"Photo is too large (max 8MB)",
+    toastPhotoFailed:"Photo upload failed: ",
+    toastSaveFailed:"Could not save: ",
+    toastChairFailed:"Could not create chair: ",
+    toastPhotoAdded:"Photo added",
+    toastMicDenied:"Microphone access was denied",
+    toastRecordingUnsupported:"Voice recording isn't supported on this browser",
+    confirmDeleteEntry:"Delete this entry? This cannot be undone.",
+    confirmDeleteChair:"Delete this chair and its whole checklist? This cannot be undone.",
+    promptChairName:"Chair name (e.g. model or batch code):",
+    promptItemName:"Checklist item name:",
+    csvDate:"Date", csvAuthor:"Author", csvSummary:"Summary",
+    csvChair:"Chair", csvItem:"Item", csvStatus:"Status", csvNote:"Note", csvUpdatedBy:"Updated by", csvUpdatedAt:"Updated at",
+    someone:"Someone"
+  },
+  he: {
+    appTitle:"טיול גאנה",
+    tagline:"מרחב משותף לסיכומי יום, מחשבות ובדיקות כיסאות — לכל הצוות, גם בגאנה וגם בישראל.",
+    signInGoogle:"התחברות עם Google",
+    signedInAs:"מחובר/ת בתור ",
+    signOut:"התנתקות",
+    cancel:"ביטול",
+    save:"שמירה",
+    export:"ייצוא",
+    photo:"תמונה",
+    record:"הקלטה",
+    stop:"עצירה",
+    navFeed:"עדכונים", navDays:"ימים", navNotes:"פתקים", navChairs:"כיסאות",
+    addDay:"הוספת סיכום יום",
+    addNote:"הוספת מחשבה או הערה",
+    examineChair:"בדיקת כיסא חדש",
+    dayPlaceholder:"מה קרה היום?",
+    notePlaceholder:"משהו ששווה לזכור...",
+    draftRestored:"הטיוטה שוחזרה מהביקור הקודם",
+    addChairPhoto:"הוספת תמונה לכיסא",
+    allChairsBack:"כל הכיסאות →",
+    deleteChair:"מחיקת כיסא",
+    addChecklistItem:"+ הוספת פריט בדיקה",
+    chairNamePlaceholder:"שם הכיסא",
+    good:"תקין", problem:"יש בעיה",
+    problemPlaceholder:"מה הבעיה?",
+    addPhoto:"הוספת תמונה", changePhoto:"החלפת תמונה",
+    writeComment:"כתיבת תגובה...",
+    send:"שליחה",
+    edit:"✏️ עריכה",
+    badgeDay:"סיכום יום", badgeNote:"מחשבה",
+    comment:"תגובה", comments:"תגובות",
+    emptyDays:"עדיין אין סיכומי יום — היו הראשונים לשתף איך עבר היום.",
+    emptyNotes:"עדיין אין פתקים — רשמו מחשבה ששווה לזכור.",
+    emptyChairs:"עדיין לא נבדקו כיסאות. התחילו עם זה שמולכם.",
+    emptyFeed:"עדיין אין שיתופים. הוסיפו סיכום יום, פתק, או התחילו לבדוק כיסא.",
+    noChecklist:"עדיין אין פריטי בדיקה.",
+    updates:"עדכונים מהצוות", update:"עדכון מהצוות",
+    checklistItems:"פריט בדיקה", checklistItemsPl:"פריטי בדיקה",
+    allGood:"הכל תקין", issue:"בעיה", issues:"בעיות", toCheck:"לבדיקה",
+    justNow:"ממש עכשיו", minAgo:" דק׳", hourAgo:" שע׳", yesterday:"אתמול",
+    toastSaved:"נשמר", toastEntrySaved:"הרשומה נשמרה", toastDaySaved:"סיכום היום נשמר", toastNoteSaved:"הפתק נשמר",
+    toastUpdated:"עודכן", toastDeleted:"נמחק",
+    toastPhotoTooLarge:"התמונה גדולה מדי (מקסימום 8MB)",
+    toastPhotoFailed:"העלאת התמונה נכשלה: ",
+    toastSaveFailed:"לא ניתן היה לשמור: ",
+    toastChairFailed:"לא ניתן היה ליצור כיסא: ",
+    toastPhotoAdded:"התמונה נוספה",
+    toastMicDenied:"הגישה למיקרופון נדחתה",
+    toastRecordingUnsupported:"הקלטה קולית אינה נתמכת בדפדפן זה",
+    confirmDeleteEntry:"למחוק את הרשומה? לא ניתן לשחזר לאחר מכן.",
+    confirmDeleteChair:"למחוק את הכיסא ואת כל רשימת הבדיקה שלו? לא ניתן לשחזר לאחר מכן.",
+    promptChairName:"שם הכיסא (למשל דגם או מספר אצווה):",
+    promptItemName:"שם פריט הבדיקה:",
+    csvDate:"תאריך", csvAuthor:"מאת", csvSummary:"סיכום",
+    csvChair:"כיסא", csvItem:"פריט", csvStatus:"סטטוס", csvNote:"הערה", csvUpdatedBy:"עודכן על ידי", csvUpdatedAt:"עודכן בתאריך",
+    someone:"מישהו"
+  }
+};
+let LANG = localStorage.getItem('ghanaTripLang') || 'en';
+function t(key){ return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
+
+function applyLanguage(){
+  document.getElementById('htmlRoot').lang = LANG;
+  document.getElementById('htmlRoot').dir = LANG === 'he' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll('[data-lang-btn]').forEach(btn=>{ btn.classList.toggle('active', btn.dataset.langBtn === LANG); });
+  const langToggle = document.getElementById('langToggleBtn');
+  if(langToggle) langToggle.textContent = LANG === 'en' ? 'עברית' : 'English';
+  // re-render any dynamic lists so their generated text updates too
+  if(currentUser){
+    loadFeed(); loadDays(); loadNotes(); loadChairs();
+    if(currentChairId) loadChairItems();
+  }
+}
+function setLanguage(lang){
+  LANG = lang;
+  localStorage.setItem('ghanaTripLang', lang);
+  applyLanguage();
+}
+document.querySelectorAll('[data-lang-btn]').forEach(btn=>{
+  btn.onclick = ()=> setLanguage(btn.dataset.langBtn);
+});
+document.getElementById('langToggleBtn').onclick = ()=> setLanguage(LANG === 'en' ? 'he' : 'en');
+applyLanguage();
+
+/* ============================================================
+   Helpers
+============================================================= */
 function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 1800);
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2000);
 }
 function initials(name){ return (name||'?').trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
 function relTime(iso){
   const d = new Date(iso), diff = (Date.now()-d.getTime())/1000;
-  if(diff<60) return 'just now';
-  if(diff<3600) return Math.floor(diff/60)+'m ago';
-  if(diff<86400) return Math.floor(diff/3600)+'h ago';
-  if(diff<172800) return 'yesterday';
-  return d.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+  if(diff<60) return t('justNow');
+  if(diff<3600) return Math.floor(diff/60)+t('minAgo');
+  if(diff<86400) return Math.floor(diff/3600)+t('hourAgo');
+  if(diff<172800) return t('yesterday');
+  return d.toLocaleDateString(LANG==='he'?'he-IL':undefined,{month:'short', day:'numeric'});
 }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 function photoUrl(path){ return path ? sb.storage.from('trip-photos').getPublicUrl(path).data.publicUrl : null; }
@@ -432,11 +624,19 @@ function groupBy(arr, key){ return (arr||[]).reduce((acc,x)=>{ (acc[x[key]] = ac
 
 async function uploadPhoto(file, folder){
   if(!file) return null;
-  if(file.size > MAX_PHOTO_BYTES){ showToast('Photo is too large (max 8MB)'); return undefined; }
+  if(file.size > MAX_PHOTO_BYTES){ showToast(t('toastPhotoTooLarge')); return undefined; }
   const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
   const path = `${folder}/${crypto.randomUUID()}.${ext}`;
   const { error } = await sb.storage.from('trip-photos').upload(path, file);
-  if(error){ showToast('Photo upload failed: '+error.message); return undefined; }
+  if(error){ showToast(t('toastPhotoFailed')+error.message); return undefined; }
+  return path;
+}
+async function uploadAudio(blob, folder){
+  if(!blob) return null;
+  const ext = (blob.type||'').includes('mp4') ? 'm4a' : 'webm';
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await sb.storage.from('trip-photos').upload(path, blob, { contentType: blob.type || 'audio/webm' });
+  if(error){ showToast(t('toastPhotoFailed')+error.message); return undefined; }
   return path;
 }
 async function deletePhoto(path){
@@ -448,7 +648,7 @@ async function deletePhoto(path){
 function toCsvValue(v){ if(v===null||v===undefined) return ''; const s=String(v).replace(/"/g,'""'); return /[",\n]/.test(s) ? `"${s}"` : s; }
 function downloadCsv(filename, rows){
   const csv = rows.map(r=>r.map(toCsvValue).join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const blob = new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
@@ -456,7 +656,7 @@ function downloadCsv(filename, rows){
 }
 document.getElementById('exportDaysBtn').onclick = async ()=>{
   const { data } = await sb.from('day_summaries').select('*, profiles(name)').order('entry_date');
-  const rows = [['Date','Author','Summary']];
+  const rows = [[t('csvDate'),t('csvAuthor'),t('csvSummary')]];
   (data||[]).forEach(r=> rows.push([r.entry_date, (r.profiles&&r.profiles.name)||'', r.content]));
   downloadCsv('day-summaries.csv', rows);
 };
@@ -464,7 +664,7 @@ document.getElementById('exportChairsBtn').onclick = async ()=>{
   const { data: chairs } = await sb.from('chairs').select('*').order('created_at');
   const { data: items } = await sb.from('chair_items').select('*, profiles(name)').order('sort_order');
   const byChair = groupBy(items, 'chair_id');
-  const rows = [['Chair','Item','Status','Note','Updated by','Updated at']];
+  const rows = [[t('csvChair'),t('csvItem'),t('csvStatus'),t('csvNote'),t('csvUpdatedBy'),t('csvUpdatedAt')]];
   (chairs||[]).forEach(c=>{
     (byChair[c.id]||[]).forEach(i=>{
       rows.push([c.name, i.label, i.status, i.note||'', (i.profiles&&i.profiles.name)||'', i.updated_at||'']);
@@ -497,11 +697,12 @@ async function boot(user){
   const avatar = meta.avatar_url || meta.picture;
   const avatarBtn = document.getElementById('avatarBtn');
   avatarBtn.innerHTML = avatar ? `<img src="${avatar}">` : initials(name);
-  document.getElementById('whoAmI').textContent = 'Signed in as ' + name;
+  document.getElementById('whoAmI').textContent = t('signedInAs') + name;
 
   await sb.from('profiles').upsert({ id:user.id, name, avatar_url: avatar||null }, { onConflict:'id' });
 
   loadFeed(); loadDays(); loadNotes(); loadChairs();
+  restoreDrafts();
   subscribeRealtime();
 }
 
@@ -532,6 +733,29 @@ document.querySelectorAll('[data-close]').forEach(btn=>{
   btn.onclick = ()=> document.getElementById(btn.dataset.close).classList.remove('show');
 });
 
+/* ---------- Draft autosave ---------- */
+function wireDraftAutosave(textareaId, storageKey, draftNoteId){
+  const el = document.getElementById(textareaId);
+  el.addEventListener('input', ()=>{
+    if(el.value.trim()) localStorage.setItem(storageKey, el.value);
+    else localStorage.removeItem(storageKey);
+  });
+}
+function restoreDrafts(){
+  const dayDraft = localStorage.getItem('draft_day');
+  if(dayDraft){
+    document.getElementById('dayText').value = dayDraft;
+    document.getElementById('dayDraftNote').classList.add('show');
+  }
+  const noteDraft = localStorage.getItem('draft_note');
+  if(noteDraft){
+    document.getElementById('noteText').value = noteDraft;
+    document.getElementById('noteDraftNote').classList.add('show');
+  }
+}
+wireDraftAutosave('dayText','draft_day','dayDraftNote');
+wireDraftAutosave('noteText','draft_note','noteDraftNote');
+
 /* ---------- Photo picking helpers for composers ---------- */
 function wirePhotoPicker(btnId, inputId, previewId, imgId, removeId, setFile){
   const btn = document.getElementById(btnId), input = document.getElementById(inputId);
@@ -540,7 +764,7 @@ function wirePhotoPicker(btnId, inputId, previewId, imgId, removeId, setFile){
   input.onchange = ()=>{
     const file = input.files[0];
     if(!file) return;
-    if(file.size > MAX_PHOTO_BYTES){ showToast('Photo is too large (max 8MB)'); input.value=''; return; }
+    if(file.size > MAX_PHOTO_BYTES){ showToast(t('toastPhotoTooLarge')); input.value=''; return; }
     setFile(file);
     img.src = URL.createObjectURL(file);
     preview.classList.add('show');
@@ -550,11 +774,82 @@ function wirePhotoPicker(btnId, inputId, previewId, imgId, removeId, setFile){
 wirePhotoPicker('dayPhotoBtn','dayPhotoInput','dayPhotoPreview','dayPhotoImg','dayPhotoRemove', f=>dayPhotoFile=f);
 wirePhotoPicker('notePhotoBtn','notePhotoInput','notePhotoPreview','notePhotoImg','notePhotoRemove', f=>notePhotoFile=f);
 
+/* ---------- Voice memo recording + live transcription ---------- */
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+function wireRecorder(btnId, textareaId, audioPreviewId, audioPlayerId, audioRemoveId, setBlob){
+  const btn = document.getElementById(btnId);
+  const textarea = document.getElementById(textareaId);
+  const preview = document.getElementById(audioPreviewId);
+  const player = document.getElementById(audioPlayerId);
+  const removeBtn = document.getElementById(audioRemoveId);
+  let mediaRecorder = null, chunks = [], recognizer = null, recording = false, startedAt = 0, timerInt = null;
+
+  removeBtn.onclick = ()=>{ setBlob(null); preview.classList.remove('show'); player.src=''; };
+
+  btn.onclick = async ()=>{
+    if(recording){ stop(); return; }
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      chunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e=>{ if(e.data.size) chunks.push(e.data); };
+      mediaRecorder.onstop = ()=>{
+        stream.getTracks().forEach(tr=>tr.stop());
+        const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+        setBlob(blob);
+        player.src = URL.createObjectURL(blob);
+        preview.classList.add('show');
+      };
+      mediaRecorder.start();
+      recording = true;
+      startedAt = Date.now();
+      btn.classList.add('recording');
+      timerInt = setInterval(()=>{
+        const secs = Math.floor((Date.now()-startedAt)/1000);
+        btn.querySelector('span').textContent = `${t('stop')} (${secs}s)`;
+      }, 500);
+
+      if(SpeechRecognitionAPI){
+        recognizer = new SpeechRecognitionAPI();
+        recognizer.lang = LANG === 'he' ? 'he-IL' : 'en-US';
+        recognizer.continuous = true;
+        recognizer.interimResults = false;
+        recognizer.onresult = (e)=>{
+          let finalText = '';
+          for(let i=e.resultIndex; i<e.results.length; i++){
+            if(e.results[i].isFinal) finalText += e.results[i][0].transcript;
+          }
+          if(finalText.trim()){
+            textarea.value = (textarea.value ? textarea.value + ' ' : '') + finalText.trim();
+            textarea.dispatchEvent(new Event('input'));
+          }
+        };
+        recognizer.onerror = ()=>{};
+        try{ recognizer.start(); }catch(e){}
+      }
+    }catch(err){
+      showToast(t('toastMicDenied'));
+    }
+  };
+
+  function stop(){
+    recording = false;
+    clearInterval(timerInt);
+    btn.classList.remove('recording');
+    btn.querySelector('span').textContent = t('record');
+    if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    if(recognizer){ try{ recognizer.stop(); }catch(e){} }
+  }
+}
+if(!SpeechRecognitionAPI){ /* recording still works without live transcription */ }
+wireRecorder('dayRecordBtn','dayText','dayAudioPreview','dayAudioPlayer','dayAudioRemove', b=>dayAudioBlob=b);
+wireRecorder('noteRecordBtn','noteText','noteAudioPreview','noteAudioPlayer','noteAudioRemove', b=>noteAudioBlob=b);
+
 /* ---------- Day summaries ---------- */
 async function loadDays(){
   const { data } = await sb.from('day_summaries').select('*, profiles(name, avatar_url)').order('entry_date',{ascending:false}).order('created_at',{ascending:false});
   const list = document.getElementById('daysList');
-  if(!data || !data.length){ list.innerHTML = '<div class="empty">No day summaries yet — be the first to share how today went.</div>'; return; }
+  if(!data || !data.length){ list.innerHTML = `<div class="empty">${t('emptyDays')}</div>`; return; }
   const { reactions, comments } = await loadReactionsAndComments(['day']);
   list.innerHTML = data.map(row=>cardHtml(row,'day', reactions, comments)).join('');
   wireCardActions(list);
@@ -565,18 +860,22 @@ document.getElementById('saveDayBtn').onclick = async ()=>{
   if(!text) return;
   let photo_path = null;
   if(dayPhotoFile){ photo_path = await uploadPhoto(dayPhotoFile, 'day'); if(photo_path===undefined) return; }
-  const { error } = await sb.from('day_summaries').insert({ user_id: currentUser.id, entry_date: date, content: text, photo_path });
-  if(error){ showToast('Could not save: '+error.message); return; }
+  let audio_path = null;
+  if(dayAudioBlob){ audio_path = await uploadAudio(dayAudioBlob, 'day-audio'); if(audio_path===undefined) return; }
+  const { error } = await sb.from('day_summaries').insert({ user_id: currentUser.id, entry_date: date, content: text, photo_path, audio_path });
+  if(error){ showToast(t('toastSaveFailed')+error.message); return; }
   document.getElementById('dayText').value=''; document.getElementById('dayComposer').classList.remove('show');
   dayPhotoFile=null; document.getElementById('dayPhotoPreview').classList.remove('show'); document.getElementById('dayPhotoInput').value='';
-  showToast('Day summary saved'); loadDays(); loadFeed();
+  dayAudioBlob=null; document.getElementById('dayAudioPreview').classList.remove('show');
+  document.getElementById('dayDraftNote').classList.remove('show'); localStorage.removeItem('draft_day');
+  showToast(t('toastDaySaved')); loadDays(); loadFeed();
 };
 
 /* ---------- Notes ---------- */
 async function loadNotes(){
   const { data } = await sb.from('notes').select('*, profiles(name, avatar_url)').order('created_at',{ascending:false});
   const list = document.getElementById('notesList');
-  if(!data || !data.length){ list.innerHTML = '<div class="empty">No notes yet — jot down a thought worth keeping.</div>'; return; }
+  if(!data || !data.length){ list.innerHTML = `<div class="empty">${t('emptyNotes')}</div>`; return; }
   const { reactions, comments } = await loadReactionsAndComments(['note']);
   list.innerHTML = data.map(row=>cardHtml(row,'note', reactions, comments)).join('');
   wireCardActions(list);
@@ -586,11 +885,15 @@ document.getElementById('saveNoteBtn').onclick = async ()=>{
   if(!text) return;
   let photo_path = null;
   if(notePhotoFile){ photo_path = await uploadPhoto(notePhotoFile, 'note'); if(photo_path===undefined) return; }
-  const { error } = await sb.from('notes').insert({ user_id: currentUser.id, content: text, photo_path });
-  if(error){ showToast('Could not save: '+error.message); return; }
+  let audio_path = null;
+  if(noteAudioBlob){ audio_path = await uploadAudio(noteAudioBlob, 'note-audio'); if(audio_path===undefined) return; }
+  const { error } = await sb.from('notes').insert({ user_id: currentUser.id, content: text, photo_path, audio_path });
+  if(error){ showToast(t('toastSaveFailed')+error.message); return; }
   document.getElementById('noteText').value=''; document.getElementById('noteComposer').classList.remove('show');
   notePhotoFile=null; document.getElementById('notePhotoPreview').classList.remove('show'); document.getElementById('notePhotoInput').value='';
-  showToast('Note saved'); loadNotes(); loadFeed();
+  noteAudioBlob=null; document.getElementById('noteAudioPreview').classList.remove('show');
+  document.getElementById('noteDraftNote').classList.remove('show'); localStorage.removeItem('draft_note');
+  showToast(t('toastNoteSaved')); loadNotes(); loadFeed();
 };
 
 /* ---------- Reactions & comments ---------- */
@@ -604,11 +907,12 @@ async function loadReactionsAndComments(types){
 
 function cardHtml(row, type, reactionsByEntry, commentsByEntry){
   const p = row.profiles || {};
-  const name = p.name || 'Someone';
+  const name = p.name || t('someone');
   const avatarHtml = p.avatar_url ? `<img src="${p.avatar_url}">` : initials(name);
-  const badge = type==='day' ? '<span class="badge day">Day summary</span>' : '<span class="badge note">Thought</span>';
+  const badge = type==='day' ? `<span class="badge day">${t('badgeDay')}</span>` : `<span class="badge note">${t('badgeNote')}</span>`;
   const isOwner = currentUser && row.user_id === currentUser.id;
   const photoHtml = row.photo_path ? `<img class="card-photo" src="${photoUrl(row.photo_path)}" onclick="window.open(this.src,'_blank')">` : '';
+  const audioHtml = row.audio_path ? `<audio controls src="${photoUrl(row.audio_path)}"></audio>` : '';
 
   const myReactions = (reactionsByEntry[row.id]||[]);
   const reactionBtns = REACTIONS.map(emoji=>{
@@ -618,12 +922,13 @@ function cardHtml(row, type, reactionsByEntry, commentsByEntry){
   }).join('');
 
   const myComments = (commentsByEntry[row.id]||[]);
-  const commentsHtml = myComments.map(c=>`<div class="comment-row"><b>${escapeHtml((c.profiles&&c.profiles.name)||'Someone')}:</b> ${escapeHtml(c.content)}</div>`).join('');
+  const commentsHtml = myComments.map(c=>`<div class="comment-row"><b>${escapeHtml((c.profiles&&c.profiles.name)||t('someone'))}:</b> ${escapeHtml(c.content)}</div>`).join('');
+  const commentLabel = myComments.length===1 ? t('comment') : t('comments');
+  const editDeleteBtns = isOwner ? `<button class="icon-btn" data-edit="1">${t('edit')}</button><button class="icon-btn" data-delete="1">🗑</button>` : '';
 
-  const editDeleteBtns = isOwner ? `<button class="icon-btn" data-edit="1">✏️ Edit</button><button class="icon-btn" data-delete="1">🗑</button>` : '';
-
-  return `<div class="card" data-id="${row.id}" data-type="${type}" data-photo="${row.photo_path||''}">
+  return `<div class="card" data-id="${row.id}" data-type="${type}" data-photo="${row.photo_path||''}" data-audio="${row.audio_path||''}">
     ${photoHtml}
+    ${audioHtml}
     <div class="meta">
       <div class="mini-avatar">${avatarHtml}</div>
       <span class="name">${escapeHtml(name)}</span>
@@ -635,14 +940,14 @@ function cardHtml(row, type, reactionsByEntry, commentsByEntry){
     <div class="card-actions">
       ${reactionBtns}
       <div class="spacer"></div>
-      <button class="comment-toggle" data-toggle-comments="1">💬 ${myComments.length||''} ${myComments.length===1?'comment':'comments'}</button>
+      <button class="comment-toggle" data-toggle-comments="1">💬 ${myComments.length||''} ${commentLabel}</button>
       ${editDeleteBtns}
     </div>
     <div class="comments-box">
       ${commentsHtml}
       <div class="comment-input-row">
-        <input type="text" placeholder="Write a comment...">
-        <button data-send-comment="1">Send</button>
+        <input type="text" placeholder="${t('writeComment')}">
+        <button data-send-comment="1">${t('send')}</button>
       </div>
     </div>
   </div>`;
@@ -684,23 +989,24 @@ function wireCardActions(container){
     if(editBtn) editBtn.onclick = ()=>{
       const contentEl = card.querySelector('.content');
       const raw = contentEl.dataset.raw;
-      contentEl.innerHTML = `<textarea>${raw}</textarea><div class="edit-row"><button class="btn ghost" data-cancel-edit="1">Cancel</button><button class="btn primary" data-save-edit="1">Save</button></div>`;
+      contentEl.innerHTML = `<textarea>${raw}</textarea><div class="edit-row"><button class="btn ghost" data-cancel-edit="1">${t('cancel')}</button><button class="btn primary" data-save-edit="1">${t('save')}</button></div>`;
       card.querySelector('[data-cancel-edit]').onclick = ()=> reload();
       card.querySelector('[data-save-edit]').onclick = async ()=>{
         const newText = card.querySelector('.content textarea').value.trim();
         if(!newText) return;
         await sb.from(table).update({ content:newText }).eq('id', id);
-        showToast('Updated'); reload(); loadFeed();
+        showToast(t('toastUpdated')); reload(); loadFeed();
       };
     };
 
     const deleteBtn = card.querySelector('[data-delete]');
     if(deleteBtn) deleteBtn.onclick = async ()=>{
-      if(!confirm('Delete this entry? This cannot be undone.')) return;
-      const photoPath = card.dataset.photo;
+      if(!confirm(t('confirmDeleteEntry'))) return;
+      const photoPath = card.dataset.photo, audioPath = card.dataset.audio;
       await sb.from(table).delete().eq('id', id);
       if(photoPath) await deletePhoto(photoPath);
-      showToast('Deleted'); reload(); loadFeed();
+      if(audioPath) await deletePhoto(audioPath);
+      showToast(t('toastDeleted')); reload(); loadFeed();
     };
   });
 }
@@ -716,8 +1022,8 @@ async function loadFeed(){
     ...(notes||[]).map(r=>({...r, _type:'note'})),
   ].sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
   const list = document.getElementById('feedList');
-  document.getElementById('dayCount').textContent = combined.length ? `${combined.length} update${combined.length===1?'':'s'} from the team` : '';
-  if(!combined.length){ list.innerHTML = '<div class="empty">Nothing shared yet. Add a day summary, a note, or start examining a chair to get things going.</div>'; return; }
+  document.getElementById('dayCount').textContent = combined.length ? `${combined.length} ${combined.length===1?t('update'):t('updates')}` : '';
+  if(!combined.length){ list.innerHTML = `<div class="empty">${t('emptyFeed')}</div>`; return; }
   const { reactions, comments } = await loadReactionsAndComments(['day','note']);
   list.innerHTML = combined.map(row=>cardHtml(row,row._type, reactions, comments)).join('');
   wireCardActions(list);
@@ -727,18 +1033,19 @@ async function loadFeed(){
 async function loadChairs(){
   const { data: chairs } = await sb.from('chairs').select('*').order('created_at',{ascending:false});
   const list = document.getElementById('chairsList');
-  if(!chairs || !chairs.length){ list.innerHTML = '<div class="empty">No chairs examined yet. Start with the one in front of you.</div>'; return; }
+  if(!chairs || !chairs.length){ list.innerHTML = `<div class="empty">${t('emptyChairs')}</div>`; return; }
 
   const rows = await Promise.all(chairs.map(async chair=>{
     const { data: items } = await sb.from('chair_items').select('status').eq('chair_id', chair.id);
     const problems = (items||[]).filter(i=>i.status==='problem').length;
     const pending = (items||[]).filter(i=>i.status==='unchecked').length;
     let pill;
-    if(problems>0) pill = `<span class="status-pill warn">${problems} issue${problems===1?'':'s'}</span>`;
-    else if(pending>0) pill = `<span class="status-pill pending">${pending} to check</span>`;
-    else pill = `<span class="status-pill ok">All good</span>`;
+    if(problems>0) pill = `<span class="status-pill warn">${problems} ${problems===1?t('issue'):t('issues')}</span>`;
+    else if(pending>0) pill = `<span class="status-pill pending">${pending} ${t('toCheck')}</span>`;
+    else pill = `<span class="status-pill ok">${t('allGood')}</span>`;
+    const itemCount = (items||[]).length;
     return `<div class="chair-row" data-id="${chair.id}">
-      <div><h3>${escapeHtml(chair.name)}</h3><div class="sub">${(items||[]).length} checklist item${(items||[]).length===1?'':'s'}</div></div>
+      <div><h3>${escapeHtml(chair.name)}</h3><div class="sub">${itemCount} ${itemCount===1?t('checklistItems'):t('checklistItemsPl')}</div></div>
       ${pill}
     </div>`;
   }));
@@ -747,11 +1054,12 @@ async function loadChairs(){
 }
 
 document.getElementById('newChairBtn').onclick = async ()=>{
-  const name = prompt('Chair name (e.g. model or batch code):');
+  const name = prompt(t('promptChairName'));
   if(!name || !name.trim()) return;
   const { data, error } = await sb.from('chairs').insert({ name: name.trim(), created_by: currentUser.id }).select().single();
-  if(error){ showToast('Could not create chair: '+error.message); return; }
-  const items = DEFAULT_ITEMS.map((label,i)=>({ chair_id:data.id, label, sort_order:i }));
+  if(error){ showToast(t('toastChairFailed')+error.message); return; }
+  const labels = DEFAULT_ITEMS[LANG] || DEFAULT_ITEMS.en;
+  const items = labels.map((label,i)=>({ chair_id:data.id, label, sort_order:i }));
   await sb.from('chair_items').insert(items);
   loadChairs();
   openChair(data.id);
@@ -770,13 +1078,13 @@ async function openChair(id){
 document.getElementById('backToChairs').onclick = ()=>{ currentChairId=null; switchView('chairsView'); loadChairs(); };
 
 document.getElementById('deleteChairBtn').onclick = async ()=>{
-  if(!confirm('Delete this chair and its whole checklist? This cannot be undone.')) return;
+  if(!confirm(t('confirmDeleteChair'))) return;
   const { data: chair } = await sb.from('chairs').select('photo_path').eq('id', currentChairId).single();
   const { data: items } = await sb.from('chair_items').select('photo_path').eq('chair_id', currentChairId);
   await sb.from('chairs').delete().eq('id', currentChairId);
   if(chair && chair.photo_path) await deletePhoto(chair.photo_path);
   (items||[]).forEach(i=>{ if(i.photo_path) deletePhoto(i.photo_path); });
-  showToast('Chair deleted');
+  showToast(t('toastDeleted'));
   currentChairId = null; switchView('chairsView'); loadChairs();
 };
 
@@ -785,7 +1093,7 @@ document.getElementById('chairNameInput').addEventListener('input', (e)=>{
   clearTimeout(chairNameTimer);
   chairNameTimer = setTimeout(async ()=>{
     await sb.from('chairs').update({ name: e.target.value.trim() }).eq('id', currentChairId);
-    showToast('Saved');
+    showToast(t('toastSaved'));
   }, 500);
 });
 
@@ -800,7 +1108,7 @@ document.getElementById('chairPhotoInput').onchange = async (e)=>{
   if(old && old.photo_path) deletePhoto(old.photo_path);
   document.getElementById('chairPhotoImg').src = photoUrl(path);
   document.getElementById('chairPhotoPreview').classList.add('show');
-  showToast('Photo added');
+  showToast(t('toastPhotoAdded'));
 };
 document.getElementById('chairPhotoRemove').onclick = async ()=>{
   const { data: old } = await sb.from('chairs').select('photo_path').eq('id', currentChairId).single();
@@ -813,17 +1121,17 @@ document.getElementById('chairPhotoRemove').onclick = async ()=>{
 async function loadChairItems(){
   const { data: items } = await sb.from('chair_items').select('*').eq('chair_id', currentChairId).order('sort_order');
   const list = document.getElementById('chairItemsList');
-  if(!items || !items.length){ list.innerHTML = '<div class="empty">No checklist items yet.</div>'; return; }
+  if(!items || !items.length){ list.innerHTML = `<div class="empty">${t('noChecklist')}</div>`; return; }
   list.innerHTML = items.map(item=>`
     <div class="checklist-item" data-id="${item.id}" data-photo="${item.photo_path||''}">
       <div class="label-row"><span class="label">${escapeHtml(item.label)}</span></div>
       <div class="status-toggle">
-        <button class="good ${item.status==='good'?'active':''}" data-status="good">Good</button>
-        <button class="problem ${item.status==='problem'?'active':''}" data-status="problem">Has a problem</button>
+        <button class="good ${item.status==='good'?'active':''}" data-status="good">${t('good')}</button>
+        <button class="problem ${item.status==='problem'?'active':''}" data-status="problem">${t('problem')}</button>
       </div>
-      <textarea class="problem-note ${item.status==='problem'?'show':''}" placeholder="What's wrong with it?">${escapeHtml(item.note||'')}</textarea>
+      <textarea class="problem-note ${item.status==='problem'?'show':''}" placeholder="${t('problemPlaceholder')}">${escapeHtml(item.note||'')}</textarea>
       <div class="item-photo-row">
-        <button class="item-photo-btn" data-photo-btn="1">📷 ${item.photo_path?'Change photo':'Add photo'}</button>
+        <button class="item-photo-btn" data-photo-btn="1">📷 ${item.photo_path?t('changePhoto'):t('addPhoto')}</button>
         <input type="file" accept="image/*" style="display:none">
         ${item.photo_path ? `<img class="item-photo-thumb" src="${photoUrl(item.photo_path)}" onclick="window.open(this.src,'_blank')">` : ''}
       </div>
@@ -847,7 +1155,7 @@ async function loadChairItems(){
       clearTimeout(noteTimer);
       noteTimer = setTimeout(async ()=>{
         await sb.from('chair_items').update({ note: noteEl.value, updated_by: currentUser.id, updated_at: new Date().toISOString() }).eq('id', itemId);
-        showToast('Saved');
+        showToast(t('toastSaved'));
       }, 600);
     });
     const photoBtn = el.querySelector('[data-photo-btn]');
@@ -861,14 +1169,14 @@ async function loadChairItems(){
       const oldPath = el.dataset.photo;
       await sb.from('chair_items').update({ photo_path: path }).eq('id', itemId);
       if(oldPath) deletePhoto(oldPath);
-      showToast('Photo added');
+      showToast(t('toastPhotoAdded'));
       loadChairItems();
     };
   });
 }
 
 document.getElementById('addChecklistItemBtn').onclick = async ()=>{
-  const label = prompt('Checklist item name:');
+  const label = prompt(t('promptItemName'));
   if(!label || !label.trim()) return;
   const { data: existing } = await sb.from('chair_items').select('sort_order').eq('chair_id', currentChairId).order('sort_order',{ascending:false}).limit(1);
   const nextOrder = existing && existing.length ? existing[0].sort_order+1 : 0;
