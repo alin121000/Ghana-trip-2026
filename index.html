@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F1E7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Ghana Trip</title>
+
+<!-- ============================================================
+  SETUP: fill these two lines in with your own Supabase project's
+  values (Project Settings → API in your Supabase dashboard).
+============================================================= -->
+<script>
+  const SUPABASE_URL = "YOUR_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root{
+    --bg: #F3F1E7;
+    --surface: #FFFFFF;
+    --ink: #2B2A25;
+    --ink-soft: #857F6D;
+    --teal: #2F6B65;
+    --teal-soft: #E4EDEC;
+    --gold: #C9972E;
+    --gold-soft: #F6EBD3;
+    --clay: #B25D45;
+    --clay-soft: #F5E6E0;
+    --good: #4C7A52;
+    --good-soft: #E7EFE4;
+    --line: #E3DFD0;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  h1,h2,h3{font-family:'Fraunces', serif; font-weight:600; margin:0;}
+  button{font-family:inherit;}
+  .app-shell{max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; background:var(--bg);}
+
+  /* ---------- Auth screen ---------- */
+  #authScreen{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:32px 28px; text-align:center; gap:10px;
+  }
+  #authScreen .mark{
+    width:56px; height:56px; border-radius:16px; background:var(--teal);
+    display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+    font-family:'Fraunces',serif; color:#fff; font-size:26px;
+  }
+  #authScreen h1{font-size:28px; line-height:1.2;}
+  #authScreen p{color:var(--ink-soft); font-size:15px; max-width:280px; margin:6px 0 26px;}
+  .google-btn{
+    display:flex; align-items:center; gap:10px; background:#fff; color:#3c3c3c;
+    border:1px solid var(--line); border-radius:999px; padding:13px 22px;
+    font-size:15px; font-weight:500; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.05);
+  }
+  .google-btn:active{transform:scale(.98);}
+  #authError{color:var(--clay); font-size:13px; margin-top:14px; min-height:16px;}
+
+  /* ---------- App header ---------- */
+  header.top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:calc(16px + env(safe-area-inset-top,0px)) 20px 14px;
+    padding-top:16px;
+  }
+  header.top .title h2{font-size:20px;}
+  header.top .title span{font-size:12px; color:var(--ink-soft);}
+  .avatar-btn{
+    width:36px; height:36px; border-radius:50%; border:none; overflow:hidden; cursor:pointer;
+    background:var(--teal); color:#fff; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center;
+  }
+  .avatar-btn img{width:100%; height:100%; object-fit:cover;}
+
+  #signOutSheet{
+    position:fixed; inset:0; background:rgba(0,0,0,.25); display:none; align-items:flex-end; z-index:50;
+  }
+  #signOutSheet.show{display:flex;}
+  #signOutSheet .sheet{
+    background:var(--surface); width:100%; max-width:480px; margin:0 auto; border-radius:18px 18px 0 0;
+    padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px));
+  }
+  #signOutSheet .sheet p{margin:0 0 14px; color:var(--ink-soft); font-size:13px;}
+  #signOutSheet button.action{
+    width:100%; padding:13px; border-radius:12px; border:none; background:var(--clay-soft); color:var(--clay);
+    font-size:15px; font-weight:500; cursor:pointer; margin-bottom:8px;
+  }
+  #signOutSheet button.cancel{
+    width:100%; padding:13px; border-radius:12px; border:1px solid var(--line); background:transparent; color:var(--ink);
+    font-size:15px; cursor:pointer;
+  }
+
+  /* ---------- Main / views ---------- */
+  main{flex:1; padding:4px 20px 100px; overflow-y:auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .section-label{font-size:12px; text-transform:none; color:var(--ink-soft); margin:18px 0 8px; letter-spacing:.2px;}
+  .section-label:first-child{margin-top:6px;}
+
+  .add-toggle{
+    width:100%; display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:12px;
+    border:1.5px dashed var(--line); background:transparent; color:var(--ink-soft); font-size:14px;
+    cursor:pointer; margin-bottom:6px;
+  }
+  .add-toggle span.plus{font-size:16px; color:var(--teal);}
+
+  .composer{
+    background:var(--surface); border-radius:var(--radius); padding:14px; margin-bottom:14px;
+    border:1px solid var(--line); display:none;
+  }
+  .composer.show{display:block;}
+  .composer textarea{
+    width:100%; border:none; resize:vertical; min-height:80px; font-family:inherit; font-size:15px;
+    outline:none; background:transparent; color:var(--ink); line-height:1.45;
+  }
+  .composer input[type=date]{
+    border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-family:inherit; font-size:13px;
+    color:var(--ink-soft); margin-bottom:10px; background:transparent;
+  }
+  .composer .row{display:flex; justify-content:flex-end; gap:8px; margin-top:8px;}
+  .btn{
+    border:none; border-radius:10px; padding:9px 16px; font-size:14px; font-weight:500; cursor:pointer;
+  }
+  .btn.primary{background:var(--teal); color:#fff;}
+  .btn.ghost{background:transparent; color:var(--ink-soft);}
+
+  .card{
+    background:var(--surface); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
+    border:1px solid var(--line);
+  }
+  .card .meta{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .mini-avatar{width:24px; height:24px; border-radius:50%; background:var(--teal); color:#fff; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;}
+  .mini-avatar img{width:100%; height:100%; object-fit:cover;}
+  .meta .name{font-size:13.5px; font-weight:500;}
+  .meta .dot{color:var(--line);}
+  .meta .time{font-size:12.5px; color:var(--ink-soft);}
+  .badge{
+    font-size:11px; padding:2px 8px; border-radius:999px; font-weight:500; margin-left:auto;
+  }
+  .badge.day{background:var(--teal-soft); color:var(--teal);}
+  .badge.note{background:var(--gold-soft); color:var(--gold);}
+  .card .content{font-size:14.5px; line-height:1.55; white-space:pre-wrap;}
+
+  .empty{
+    text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:14px; line-height:1.6;
+  }
+
+  /* Chairs list */
+  .chair-row{
+    background:var(--surface); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+  }
+  .chair-row h3{font-size:15.5px; font-weight:500; font-family:'Work Sans';}
+  .chair-row .sub{font-size:12.5px; color:var(--ink-soft); margin-top:3px;}
+  .status-pill{font-size:11.5px; padding:4px 10px; border-radius:999px; font-weight:500; white-space:nowrap;}
+  .status-pill.ok{background:var(--good-soft); color:var(--good);}
+  .status-pill.warn{background:var(--clay-soft); color:var(--clay);}
+  .status-pill.pending{background:var(--line); color:var(--ink-soft);}
+
+  /* Chair detail */
+  #chairDetailView{padding-bottom:40px;}
+  .back-row{display:flex; align-items:center; gap:10px; margin:4px 0 14px; cursor:pointer; color:var(--ink-soft); font-size:14px;}
+  .chair-title input{
+    width:100%; border:none; background:transparent; font-family:'Fraunces',serif; font-size:24px;
+    font-weight:600; color:var(--ink); outline:none; padding:2px 0; margin-bottom:16px;
+  }
+  .checklist-item{
+    background:var(--surface); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; border:1px solid var(--line);
+  }
+  .checklist-item .label-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;}
+  .checklist-item .label{font-size:15px; font-weight:500;}
+  .status-toggle{display:flex; gap:6px; margin-top:8px;}
+  .status-toggle button{
+    flex:1; padding:8px 0; border-radius:9px; border:1px solid var(--line); background:transparent;
+    font-size:13px; color:var(--ink-soft); cursor:pointer;
+  }
+  .status-toggle button.good.active{background:var(--good-soft); color:var(--good); border-color:transparent;}
+  .status-toggle button.problem.active{background:var(--clay-soft); color:var(--clay); border-color:transparent;}
+  .problem-note{
+    margin-top:10px; width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 10px;
+    font-family:inherit; font-size:13.5px; min-height:56px; resize:vertical; outline:none; display:none;
+  }
+  .problem-note.show{display:block;}
+  .add-item-btn{
+    width:100%; text-align:center; padding:11px; border-radius:12px; border:1.5px dashed var(--line);
+    background:transparent; color:var(--ink-soft); font-size:13.5px; cursor:pointer; margin-top:4px;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  nav.bottom{
+    position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--line);
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));
+    display:flex; justify-content:space-around; max-width:480px; margin:0 auto;
+  }
+  nav.bottom button{
+    background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:var(--ink-soft); font-size:11px; padding:4px 10px; cursor:pointer;
+  }
+  nav.bottom button svg{width:21px; height:21px;}
+  nav.bottom button.active{color:var(--teal);}
+
+  .toast{
+    position:fixed; bottom:78px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:9px 16px; border-radius:999px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .25s;
+    z-index:60;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- AUTH -->
+  <div id="authScreen">
+    <div class="mark">G</div>
+    <h1>Ghana Trip</h1>
+    <p>A shared space for day summaries, notes, and chair inspections — for everyone on the team, home and away.</p>
+    <button class="google-btn" id="googleSignIn">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.9v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.9A9 9 0 0 0 0 9c0 1.45.35 2.82.9 4.03l3.05-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .9 4.97l3.05 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+      Sign in with Google
+    </button>
+    <div id="authError"></div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" style="display:none; flex:1; display:none; flex-direction:column;">
+    <header class="top">
+      <div class="title">
+        <h2>Ghana Trip</h2>
+        <span id="dayCount"></span>
+      </div>
+      <button class="avatar-btn" id="avatarBtn"></button>
+    </header>
+
+    <main>
+      <!-- FEED -->
+      <div class="view" id="feedView">
+        <div id="feedList"></div>
+      </div>
+
+      <!-- DAY SUMMARIES -->
+      <div class="view" id="daysView">
+        <button class="add-toggle" data-composer="dayComposer"><span class="plus">+</span> Add a day summary</button>
+        <div class="composer" id="dayComposer">
+          <input type="date" id="dayDate">
+          <textarea id="dayText" placeholder="What happened today?"></textarea>
+          <div class="row">
+            <button class="btn ghost" data-close="dayComposer">Cancel</button>
+            <button class="btn primary" id="saveDayBtn">Save</button>
+          </div>
+        </div>
+        <div id="daysList"></div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="view" id="notesView">
+        <button class="add-toggle" data-composer="noteComposer"><span class="plus">+</span> Add a thought or note</button>
+        <div class="composer" id="noteComposer">
+          <textarea id="noteText" placeholder="Something worth remembering..."></textarea>
+          <div class="row">
+            <button class="btn ghost" data-close="noteComposer">Cancel</button>
+            <button class="btn primary" id="saveNoteBtn">Save</button>
+          </div>
+        </div>
+        <div id="notesList"></div>
+      </div>
+
+      <!-- CHAIRS LIST -->
+      <div class="view" id="chairsView">
+        <button class="add-toggle" id="newChairBtn"><span class="plus">+</span> Examine a new chair</button>
+        <div id="chairsList"></div>
+      </div>
+
+      <!-- CHAIR DETAIL -->
+      <div class="view" id="chairDetailView">
+        <div class="back-row" id="backToChairs">← All chairs</div>
+        <div class="chair-title"><input id="chairNameInput" placeholder="Chair name"></div>
+        <div id="chairItemsList"></div>
+        <button class="add-item-btn" id="addChecklistItemBtn">+ Add checklist item</button>
+      </div>
+    </main>
+
+    <nav class="bottom">
+      <button data-view="feedView" class="nav-btn active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Feed
+      </button>
+      <button data-view="daysView" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+        Days
+      </button>
+      <button data-view="notesView" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.2 6.8H21l-5.6 4.1 2.1 6.9L12 15.8 6.5 19.8l2.1-6.9L3 8.8h6.8z"/></svg>
+        Notes
+      </button>
+      <button data-view="chairsView" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12v9H6zM6 13v7M18 13v7M8 21h1M15 21h1"/></svg>
+        Chairs
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div id="signOutSheet">
+  <div class="sheet">
+    <p id="whoAmI"></p>
+    <button class="action" id="signOutBtn">Sign out</button>
+    <button class="cancel" id="cancelSheet">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+let currentChairId = null;
+const DEFAULT_ITEMS = ["Seat","Backrest","Legs & frame","Joints & screws","Armrests","Upholstery / finish","Stability (wobble test)"];
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function initials(name){ return (name||'?').trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function relTime(iso){
+  const d = new Date(iso), diff = (Date.now()-d.getTime())/1000;
+  if(diff<60) return 'just now';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  if(diff<172800) return 'yesterday';
+  return d.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+/* ---------- Auth ---------- */
+document.getElementById('googleSignIn').onclick = async ()=>{
+  const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: window.location.href } });
+  if(error) document.getElementById('authError').textContent = error.message;
+};
+document.getElementById('avatarBtn').onclick = ()=> document.getElementById('signOutSheet').classList.add('show');
+document.getElementById('cancelSheet').onclick = ()=> document.getElementById('signOutSheet').classList.remove('show');
+document.getElementById('signOutBtn').onclick = async ()=>{ await sb.auth.signOut(); location.reload(); };
+
+sb.auth.onAuthStateChange((event, session)=>{
+  if(session && session.user){ boot(session.user); }
+});
+
+async function boot(user){
+  currentUser = user;
+  document.getElementById('authScreen').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+
+  const meta = user.user_metadata || {};
+  const name = meta.full_name || meta.name || user.email;
+  const avatar = meta.avatar_url || meta.picture;
+  const avatarBtn = document.getElementById('avatarBtn');
+  avatarBtn.innerHTML = avatar ? `<img src="${avatar}">` : initials(name);
+  document.getElementById('whoAmI').textContent = 'Signed in as ' + name;
+
+  // make sure a profile row exists / is current
+  await sb.from('profiles').upsert({ id:user.id, name, avatar_url: avatar||null }, { onConflict:'id' });
+
+  loadFeed(); loadDays(); loadNotes(); loadChairs();
+  subscribeRealtime();
+}
+
+/* ---------- Nav ---------- */
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.onclick = ()=> switchView(btn.dataset.view);
+});
+function switchView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const navBtn = document.querySelector(`.nav-btn[data-view="${id}"]`);
+  if(navBtn) navBtn.classList.add('active');
+}
+switchView('feedView');
+
+/* ---------- Composers open/close ---------- */
+document.querySelectorAll('[data-composer]').forEach(btn=>{
+  btn.onclick = ()=>{
+    const c = document.getElementById(btn.dataset.composer);
+    c.classList.add('show');
+    if(btn.dataset.composer==='dayComposer' && !document.getElementById('dayDate').value){
+      document.getElementById('dayDate').value = new Date().toISOString().slice(0,10);
+    }
+  };
+});
+document.querySelectorAll('[data-close]').forEach(btn=>{
+  btn.onclick = ()=> document.getElementById(btn.dataset.close).classList.remove('show');
+});
+
+/* ---------- Day summaries ---------- */
+async function loadDays(){
+  const { data } = await sb.from('day_summaries').select('*, profiles(name, avatar_url)').order('entry_date',{ascending:false}).order('created_at',{ascending:false});
+  const list = document.getElementById('daysList');
+  if(!data || !data.length){ list.innerHTML = '<div class="empty">No day summaries yet — be the first to share how today went.</div>'; return; }
+  list.innerHTML = data.map(row=>cardHtml(row,'day')).join('');
+}
+document.getElementById('saveDayBtn').onclick = async ()=>{
+  const text = document.getElementById('dayText').value.trim();
+  const date = document.getElementById('dayDate').value || new Date().toISOString().slice(0,10);
+  if(!text) return;
+  const { error } = await sb.from('day_summaries').insert({ user_id: currentUser.id, entry_date: date, content: text });
+  if(error){ showToast('Could not save: '+error.message); return; }
+  document.getElementById('dayText').value=''; document.getElementById('dayComposer').classList.remove('show');
+  showToast('Day summary saved'); loadDays(); loadFeed();
+};
+
+/* ---------- Notes ---------- */
+async function loadNotes(){
+  const { data } = await sb.from('notes').select('*, profiles(name, avatar_url)').order('created_at',{ascending:false});
+  const list = document.getElementById('notesList');
+  if(!data || !data.length){ list.innerHTML = '<div class="empty">No notes yet — jot down a thought worth keeping.</div>'; return; }
+  list.innerHTML = data.map(row=>cardHtml(row,'note')).join('');
+}
+document.getElementById('saveNoteBtn').onclick = async ()=>{
+  const text = document.getElementById('noteText').value.trim();
+  if(!text) return;
+  const { error } = await sb.from('notes').insert({ user_id: currentUser.id, content: text });
+  if(error){ showToast('Could not save: '+error.message); return; }
+  document.getElementById('noteText').value=''; document.getElementById('noteComposer').classList.remove('show');
+  showToast('Note saved'); loadNotes(); loadFeed();
+};
+
+function cardHtml(row, type){
+  const p = row.profiles || {};
+  const name = p.name || 'Someone';
+  const avatarHtml = p.avatar_url ? `<img src="${p.avatar_url}">` : initials(name);
+  const badge = type==='day' ? '<span class="badge day">Day summary</span>' : '<span class="badge note">Thought</span>';
+  return `<div class="card">
+    <div class="meta">
+      <div class="mini-avatar">${avatarHtml}</div>
+      <span class="name">${escapeHtml(name)}</span>
+      <span class="dot">·</span>
+      <span class="time">${relTime(row.created_at)}</span>
+      ${badge}
+    </div>
+    <div class="content">${escapeHtml(row.content)}</div>
+  </div>`;
+}
+
+/* ---------- Feed (days + notes combined) ---------- */
+async function loadFeed(){
+  const [{data:days}, {data:notes}] = await Promise.all([
+    sb.from('day_summaries').select('*, profiles(name, avatar_url)').order('created_at',{ascending:false}).limit(30),
+    sb.from('notes').select('*, profiles(name, avatar_url)').order('created_at',{ascending:false}).limit(30),
+  ]);
+  const combined = [
+    ...(days||[]).map(r=>({...r, _type:'day'})),
+    ...(notes||[]).map(r=>({...r, _type:'note'})),
+  ].sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+  const list = document.getElementById('feedList');
+  document.getElementById('dayCount').textContent = combined.length ? `${combined.length} update${combined.length===1?'':'s'} from the team` : '';
+  if(!combined.length){ list.innerHTML = '<div class="empty">Nothing shared yet. Add a day summary, a note, or start examining a chair to get things going.</div>'; return; }
+  list.innerHTML = combined.map(row=>cardHtml(row,row._type)).join('');
+}
+
+/* ---------- Chairs ---------- */
+async function loadChairs(){
+  const { data: chairs } = await sb.from('chairs').select('*').order('created_at',{ascending:false});
+  const list = document.getElementById('chairsList');
+  if(!chairs || !chairs.length){ list.innerHTML = '<div class="empty">No chairs examined yet. Start with the one in front of you.</div>'; return; }
+
+  const rows = await Promise.all(chairs.map(async chair=>{
+    const { data: items } = await sb.from('chair_items').select('status').eq('chair_id', chair.id);
+    const problems = (items||[]).filter(i=>i.status==='problem').length;
+    const pending = (items||[]).filter(i=>i.status==='unchecked').length;
+    let pill;
+    if(problems>0) pill = `<span class="status-pill warn">${problems} issue${problems===1?'':'s'}</span>`;
+    else if(pending>0) pill = `<span class="status-pill pending">${pending} to check</span>`;
+    else pill = `<span class="status-pill ok">All good</span>`;
+    return `<div class="chair-row" data-id="${chair.id}">
+      <div><h3>${escapeHtml(chair.name)}</h3><div class="sub">${(items||[]).length} checklist item${(items||[]).length===1?'':'s'}</div></div>
+      ${pill}
+    </div>`;
+  }));
+  list.innerHTML = rows.join('');
+  document.querySelectorAll('.chair-row').forEach(el=> el.onclick = ()=> openChair(el.dataset.id));
+}
+
+document.getElementById('newChairBtn').onclick = async ()=>{
+  const name = prompt('Chair name (e.g. model or batch code):');
+  if(!name || !name.trim()) return;
+  const { data, error } = await sb.from('chairs').insert({ name: name.trim(), created_by: currentUser.id }).select().single();
+  if(error){ showToast('Could not create chair: '+error.message); return; }
+  // seed default checklist items
+  const items = DEFAULT_ITEMS.map((label,i)=>({ chair_id:data.id, label, sort_order:i }));
+  await sb.from('chair_items').insert(items);
+  loadChairs();
+  openChair(data.id);
+};
+
+async function openChair(id){
+  currentChairId = id;
+  switchView('chairDetailView');
+  const { data: chair } = await sb.from('chairs').select('*').eq('id', id).single();
+  document.getElementById('chairNameInput').value = chair.name;
+  await loadChairItems();
+}
+document.getElementById('backToChairs').onclick = ()=>{ currentChairId=null; switchView('chairsView'); loadChairs(); };
+
+let chairNameTimer;
+document.getElementById('chairNameInput').addEventListener('input', (e)=>{
+  clearTimeout(chairNameTimer);
+  chairNameTimer = setTimeout(async ()=>{
+    await sb.from('chairs').update({ name: e.target.value.trim() }).eq('id', currentChairId);
+    showToast('Saved');
+  }, 500);
+});
+
+async function loadChairItems(){
+  const { data: items } = await sb.from('chair_items').select('*').eq('chair_id', currentChairId).order('sort_order');
+  const list = document.getElementById('chairItemsList');
+  if(!items || !items.length){ list.innerHTML = '<div class="empty">No checklist items yet.</div>'; return; }
+  list.innerHTML = items.map(item=>`
+    <div class="checklist-item" data-id="${item.id}">
+      <div class="label-row"><span class="label">${escapeHtml(item.label)}</span></div>
+      <div class="status-toggle">
+        <button class="good ${item.status==='good'?'active':''}" data-status="good">Good</button>
+        <button class="problem ${item.status==='problem'?'active':''}" data-status="problem">Has a problem</button>
+      </div>
+      <textarea class="problem-note ${item.status==='problem'?'show':''}" placeholder="What's wrong with it?">${escapeHtml(item.note||'')}</textarea>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.checklist-item').forEach(el=>{
+    const itemId = el.dataset.id;
+    const noteEl = el.querySelector('.problem-note');
+    el.querySelectorAll('.status-toggle button').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const status = btn.dataset.status;
+        el.querySelectorAll('.status-toggle button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        noteEl.classList.toggle('show', status==='problem');
+        await sb.from('chair_items').update({ status, updated_by: currentUser.id, updated_at: new Date().toISOString() }).eq('id', itemId);
+      };
+    });
+    let noteTimer;
+    noteEl.addEventListener('input', ()=>{
+      clearTimeout(noteTimer);
+      noteTimer = setTimeout(async ()=>{
+        await sb.from('chair_items').update({ note: noteEl.value, updated_by: currentUser.id, updated_at: new Date().toISOString() }).eq('id', itemId);
+        showToast('Saved');
+      }, 600);
+    });
+  });
+}
+
+document.getElementById('addChecklistItemBtn').onclick = async ()=>{
+  const label = prompt('Checklist item name:');
+  if(!label || !label.trim()) return;
+  const { data: existing } = await sb.from('chair_items').select('sort_order').eq('chair_id', currentChairId).order('sort_order',{ascending:false}).limit(1);
+  const nextOrder = existing && existing.length ? existing[0].sort_order+1 : 0;
+  await sb.from('chair_items').insert({ chair_id: currentChairId, label: label.trim(), sort_order: nextOrder });
+  loadChairItems();
+};
+
+/* ---------- Realtime: keep everyone's screen fresh ---------- */
+function subscribeRealtime(){
+  sb.channel('trip-updates')
+    .on('postgres_changes', { event:'*', schema:'public', table:'day_summaries' }, ()=>{ loadDays(); loadFeed(); })
+    .on('postgres_changes', { event:'*', schema:'public', table:'notes' }, ()=>{ loadNotes(); loadFeed(); })
+    .on('postgres_changes', { event:'*', schema:'public', table:'chairs' }, ()=>{ loadChairs(); })
+    .on('postgres_changes', { event:'*', schema:'public', table:'chair_items' }, ()=>{
+      loadChairs();
+      if(currentChairId) loadChairItems();
+    })
+    .subscribe();
+}
+
+/* ---------- Restore session on load ---------- */
+(async ()=>{
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session && session.user) boot(session.user);
+})();
+</script>
+</body>
+</html>
