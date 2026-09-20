@@ -113,6 +113,14 @@
   .section-label{font-size:12px; text-transform:none; color:var(--ink-soft); margin:18px 0 8px; letter-spacing:.2px;}
   .section-label:first-child{margin-top:6px;}
 
+  .toolbar-row{display:flex; gap:8px; margin-bottom:6px;}
+  .toolbar-row .add-toggle{margin-bottom:0; flex:1;}
+  .export-btn{
+    display:flex; align-items:center; gap:6px; padding:12px 14px; border-radius:12px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-size:13px;
+    cursor:pointer; white-space:nowrap;
+  }
+
   .add-toggle{
     width:100%; display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:12px;
     border:1.5px dashed var(--line); background:transparent; color:var(--ink-soft); font-size:14px;
@@ -133,17 +141,26 @@
     border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-family:inherit; font-size:13px;
     color:var(--ink-soft); margin-bottom:10px; background:transparent;
   }
-  .composer .row{display:flex; justify-content:flex-end; gap:8px; margin-top:8px;}
+  .composer .row{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:8px;}
   .btn{
     border:none; border-radius:10px; padding:9px 16px; font-size:14px; font-weight:500; cursor:pointer;
   }
   .btn.primary{background:var(--teal); color:#fff;}
   .btn.ghost{background:transparent; color:var(--ink-soft);}
 
+  .photo-preview{position:relative; margin:8px 0; display:none;}
+  .photo-preview.show{display:block;}
+  .photo-preview img{width:100%; border-radius:10px; max-height:220px; object-fit:cover; display:block;}
+  .photo-preview .remove-photo{
+    position:absolute; top:8px; right:8px; background:rgba(20,18,14,.6); color:#fff; border:none;
+    border-radius:50%; width:26px; height:26px; cursor:pointer; font-size:15px; line-height:1;
+  }
+
   .card{
     background:var(--surface); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
     border:1px solid var(--line);
   }
+  .card-photo{width:100%; border-radius:10px; max-height:260px; object-fit:cover; display:block; margin-bottom:10px; cursor:pointer;}
   .card .meta{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
   .mini-avatar{width:24px; height:24px; border-radius:50%; background:var(--teal); color:#fff; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;}
   .mini-avatar img{width:100%; height:100%; object-fit:cover;}
@@ -156,6 +173,32 @@
   .badge.day{background:var(--teal-soft); color:var(--teal);}
   .badge.note{background:var(--gold-soft); color:var(--gold);}
   .card .content{font-size:14.5px; line-height:1.55; white-space:pre-wrap;}
+  .card .content textarea{
+    width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-family:inherit;
+    font-size:14.5px; min-height:70px; resize:vertical; outline:none;
+  }
+  .edit-row{display:flex; justify-content:flex-end; gap:8px; margin-top:8px;}
+
+  .card-actions{display:flex; align-items:center; gap:4px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line); flex-wrap:wrap;}
+  .reaction-btn{
+    background:none; border:1px solid transparent; font-size:13px; cursor:pointer; padding:4px 8px;
+    border-radius:20px; color:var(--ink-soft); display:flex; align-items:center; gap:4px;
+  }
+  .reaction-btn.active{background:var(--teal-soft); color:var(--teal); border-color:transparent;}
+  .spacer{flex:1;}
+  .icon-btn{background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:4px 6px;}
+  .comment-toggle{background:none; border:none; color:var(--ink-soft); font-size:12.5px; cursor:pointer; padding:4px 6px;}
+
+  .comments-box{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); display:none;}
+  .comments-box.show{display:block;}
+  .comment-row{font-size:13px; margin-bottom:7px; line-height:1.4;}
+  .comment-row b{font-weight:600;}
+  .comment-input-row{display:flex; gap:6px; margin-top:4px;}
+  .comment-input-row input{
+    flex:1; border:1px solid var(--line); border-radius:20px; padding:8px 13px; font-size:13px;
+    font-family:inherit; outline:none; background:var(--bg);
+  }
+  .comment-input-row button{border:none; background:var(--teal); color:#fff; border-radius:20px; padding:8px 14px; font-size:12.5px; cursor:pointer;}
 
   .empty{
     text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:14px; line-height:1.6;
@@ -175,11 +218,15 @@
 
   /* Chair detail */
   #chairDetailView{padding-bottom:40px;}
-  .back-row{display:flex; align-items:center; gap:10px; margin:4px 0 14px; cursor:pointer; color:var(--ink-soft); font-size:14px;}
+  .back-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:4px 0 14px; color:var(--ink-soft); font-size:14px;}
+  .back-row .back-link{cursor:pointer;}
+  .back-row .delete-chair{color:var(--clay); cursor:pointer; font-size:13px; background:none; border:none;}
   .chair-title input{
     width:100%; border:none; background:transparent; font-family:'Fraunces',serif; font-size:24px;
-    font-weight:600; color:var(--ink); outline:none; padding:2px 0; margin-bottom:16px;
+    font-weight:600; color:var(--ink); outline:none; padding:2px 0; margin-bottom:12px;
   }
+  .chair-photo-row{margin-bottom:16px;}
+  .chair-photo-row img{width:100%; border-radius:12px; max-height:220px; object-fit:cover; display:block; margin-bottom:8px;}
   .checklist-item{
     background:var(--surface); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; border:1px solid var(--line);
   }
@@ -197,6 +244,12 @@
     font-family:inherit; font-size:13.5px; min-height:56px; resize:vertical; outline:none; display:none;
   }
   .problem-note.show{display:block;}
+  .item-photo-row{margin-top:8px; display:flex; align-items:center; gap:8px;}
+  .item-photo-btn{
+    background:none; border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12px;
+    color:var(--ink-soft); cursor:pointer;
+  }
+  .item-photo-thumb{width:44px; height:44px; border-radius:8px; object-fit:cover; cursor:pointer;}
   .add-item-btn{
     width:100%; text-align:center; padding:11px; border-radius:12px; border:1.5px dashed var(--line);
     background:transparent; color:var(--ink-soft); font-size:13.5px; cursor:pointer; margin-top:4px;
@@ -257,11 +310,18 @@
 
       <!-- DAY SUMMARIES -->
       <div class="view" id="daysView">
-        <button class="add-toggle" data-composer="dayComposer"><span class="plus">+</span> Add a day summary</button>
+        <div class="toolbar-row">
+          <button class="add-toggle" data-composer="dayComposer"><span class="plus">+</span> Add a day summary</button>
+          <button class="export-btn" id="exportDaysBtn">⭳ Export</button>
+        </div>
         <div class="composer" id="dayComposer">
           <input type="date" id="dayDate">
           <textarea id="dayText" placeholder="What happened today?"></textarea>
+          <div class="photo-preview" id="dayPhotoPreview"><img id="dayPhotoImg"><button class="remove-photo" id="dayPhotoRemove">×</button></div>
+          <input type="file" id="dayPhotoInput" accept="image/*" style="display:none">
           <div class="row">
+            <button class="btn ghost" id="dayPhotoBtn">📷 Photo</button>
+            <div class="spacer"></div>
             <button class="btn ghost" data-close="dayComposer">Cancel</button>
             <button class="btn primary" id="saveDayBtn">Save</button>
           </div>
@@ -274,7 +334,11 @@
         <button class="add-toggle" data-composer="noteComposer"><span class="plus">+</span> Add a thought or note</button>
         <div class="composer" id="noteComposer">
           <textarea id="noteText" placeholder="Something worth remembering..."></textarea>
+          <div class="photo-preview" id="notePhotoPreview"><img id="notePhotoImg"><button class="remove-photo" id="notePhotoRemove">×</button></div>
+          <input type="file" id="notePhotoInput" accept="image/*" style="display:none">
           <div class="row">
+            <button class="btn ghost" id="notePhotoBtn">📷 Photo</button>
+            <div class="spacer"></div>
             <button class="btn ghost" data-close="noteComposer">Cancel</button>
             <button class="btn primary" id="saveNoteBtn">Save</button>
           </div>
@@ -284,14 +348,25 @@
 
       <!-- CHAIRS LIST -->
       <div class="view" id="chairsView">
-        <button class="add-toggle" id="newChairBtn"><span class="plus">+</span> Examine a new chair</button>
+        <div class="toolbar-row">
+          <button class="add-toggle" id="newChairBtn"><span class="plus">+</span> Examine a new chair</button>
+          <button class="export-btn" id="exportChairsBtn">⭳ Export</button>
+        </div>
         <div id="chairsList"></div>
       </div>
 
       <!-- CHAIR DETAIL -->
       <div class="view" id="chairDetailView">
-        <div class="back-row" id="backToChairs">← All chairs</div>
+        <div class="back-row">
+          <span class="back-link" id="backToChairs">← All chairs</span>
+          <button class="delete-chair" id="deleteChairBtn">Delete chair</button>
+        </div>
         <div class="chair-title"><input id="chairNameInput" placeholder="Chair name"></div>
+        <div class="chair-photo-row">
+          <div class="photo-preview" id="chairPhotoPreview"><img id="chairPhotoImg"><button class="remove-photo" id="chairPhotoRemove">×</button></div>
+          <input type="file" id="chairPhotoInput" accept="image/*" style="display:none">
+          <button class="btn ghost" id="chairPhotoBtn" style="border:1px solid var(--line);">📷 Add a photo of this chair</button>
+        </div>
         <div id="chairItemsList"></div>
         <button class="add-item-btn" id="addChecklistItemBtn">+ Add checklist item</button>
       </div>
@@ -333,6 +408,9 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let currentChairId = null;
 const DEFAULT_ITEMS = ["Seat","Backrest","Legs & frame","Joints & screws","Armrests","Upholstery / finish","Stability (wobble test)"];
+const REACTIONS = ["❤️","👍","😂","👏","😮"];
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024; // 8MB
+let dayPhotoFile = null, notePhotoFile = null;
 
 function showToast(msg){
   const t = document.getElementById('toast');
@@ -349,6 +427,51 @@ function relTime(iso){
   return d.toLocaleDateString(undefined,{month:'short', day:'numeric'});
 }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function photoUrl(path){ return path ? sb.storage.from('trip-photos').getPublicUrl(path).data.publicUrl : null; }
+function groupBy(arr, key){ return (arr||[]).reduce((acc,x)=>{ (acc[x[key]] = acc[x[key]]||[]).push(x); return acc; }, {}); }
+
+async function uploadPhoto(file, folder){
+  if(!file) return null;
+  if(file.size > MAX_PHOTO_BYTES){ showToast('Photo is too large (max 8MB)'); return undefined; }
+  const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await sb.storage.from('trip-photos').upload(path, file);
+  if(error){ showToast('Photo upload failed: '+error.message); return undefined; }
+  return path;
+}
+async function deletePhoto(path){
+  if(!path) return;
+  await sb.storage.from('trip-photos').remove([path]);
+}
+
+/* ---------- CSV export ---------- */
+function toCsvValue(v){ if(v===null||v===undefined) return ''; const s=String(v).replace(/"/g,'""'); return /[",\n]/.test(s) ? `"${s}"` : s; }
+function downloadCsv(filename, rows){
+  const csv = rows.map(r=>r.map(toCsvValue).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+document.getElementById('exportDaysBtn').onclick = async ()=>{
+  const { data } = await sb.from('day_summaries').select('*, profiles(name)').order('entry_date');
+  const rows = [['Date','Author','Summary']];
+  (data||[]).forEach(r=> rows.push([r.entry_date, (r.profiles&&r.profiles.name)||'', r.content]));
+  downloadCsv('day-summaries.csv', rows);
+};
+document.getElementById('exportChairsBtn').onclick = async ()=>{
+  const { data: chairs } = await sb.from('chairs').select('*').order('created_at');
+  const { data: items } = await sb.from('chair_items').select('*, profiles(name)').order('sort_order');
+  const byChair = groupBy(items, 'chair_id');
+  const rows = [['Chair','Item','Status','Note','Updated by','Updated at']];
+  (chairs||[]).forEach(c=>{
+    (byChair[c.id]||[]).forEach(i=>{
+      rows.push([c.name, i.label, i.status, i.note||'', (i.profiles&&i.profiles.name)||'', i.updated_at||'']);
+    });
+  });
+  downloadCsv('chair-inspections.csv', rows);
+};
 
 /* ---------- Auth ---------- */
 document.getElementById('googleSignIn').onclick = async ()=>{
@@ -376,7 +499,6 @@ async function boot(user){
   avatarBtn.innerHTML = avatar ? `<img src="${avatar}">` : initials(name);
   document.getElementById('whoAmI').textContent = 'Signed in as ' + name;
 
-  // make sure a profile row exists / is current
   await sb.from('profiles').upsert({ id:user.id, name, avatar_url: avatar||null }, { onConflict:'id' });
 
   loadFeed(); loadDays(); loadNotes(); loadChairs();
@@ -410,20 +532,43 @@ document.querySelectorAll('[data-close]').forEach(btn=>{
   btn.onclick = ()=> document.getElementById(btn.dataset.close).classList.remove('show');
 });
 
+/* ---------- Photo picking helpers for composers ---------- */
+function wirePhotoPicker(btnId, inputId, previewId, imgId, removeId, setFile){
+  const btn = document.getElementById(btnId), input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId), img = document.getElementById(imgId), removeBtn = document.getElementById(removeId);
+  btn.onclick = ()=> input.click();
+  input.onchange = ()=>{
+    const file = input.files[0];
+    if(!file) return;
+    if(file.size > MAX_PHOTO_BYTES){ showToast('Photo is too large (max 8MB)'); input.value=''; return; }
+    setFile(file);
+    img.src = URL.createObjectURL(file);
+    preview.classList.add('show');
+  };
+  removeBtn.onclick = ()=>{ setFile(null); input.value=''; preview.classList.remove('show'); img.src=''; };
+}
+wirePhotoPicker('dayPhotoBtn','dayPhotoInput','dayPhotoPreview','dayPhotoImg','dayPhotoRemove', f=>dayPhotoFile=f);
+wirePhotoPicker('notePhotoBtn','notePhotoInput','notePhotoPreview','notePhotoImg','notePhotoRemove', f=>notePhotoFile=f);
+
 /* ---------- Day summaries ---------- */
 async function loadDays(){
   const { data } = await sb.from('day_summaries').select('*, profiles(name, avatar_url)').order('entry_date',{ascending:false}).order('created_at',{ascending:false});
   const list = document.getElementById('daysList');
   if(!data || !data.length){ list.innerHTML = '<div class="empty">No day summaries yet — be the first to share how today went.</div>'; return; }
-  list.innerHTML = data.map(row=>cardHtml(row,'day')).join('');
+  const { reactions, comments } = await loadReactionsAndComments(['day']);
+  list.innerHTML = data.map(row=>cardHtml(row,'day', reactions, comments)).join('');
+  wireCardActions(list);
 }
 document.getElementById('saveDayBtn').onclick = async ()=>{
   const text = document.getElementById('dayText').value.trim();
   const date = document.getElementById('dayDate').value || new Date().toISOString().slice(0,10);
   if(!text) return;
-  const { error } = await sb.from('day_summaries').insert({ user_id: currentUser.id, entry_date: date, content: text });
+  let photo_path = null;
+  if(dayPhotoFile){ photo_path = await uploadPhoto(dayPhotoFile, 'day'); if(photo_path===undefined) return; }
+  const { error } = await sb.from('day_summaries').insert({ user_id: currentUser.id, entry_date: date, content: text, photo_path });
   if(error){ showToast('Could not save: '+error.message); return; }
   document.getElementById('dayText').value=''; document.getElementById('dayComposer').classList.remove('show');
+  dayPhotoFile=null; document.getElementById('dayPhotoPreview').classList.remove('show'); document.getElementById('dayPhotoInput').value='';
   showToast('Day summary saved'); loadDays(); loadFeed();
 };
 
@@ -432,23 +577,53 @@ async function loadNotes(){
   const { data } = await sb.from('notes').select('*, profiles(name, avatar_url)').order('created_at',{ascending:false});
   const list = document.getElementById('notesList');
   if(!data || !data.length){ list.innerHTML = '<div class="empty">No notes yet — jot down a thought worth keeping.</div>'; return; }
-  list.innerHTML = data.map(row=>cardHtml(row,'note')).join('');
+  const { reactions, comments } = await loadReactionsAndComments(['note']);
+  list.innerHTML = data.map(row=>cardHtml(row,'note', reactions, comments)).join('');
+  wireCardActions(list);
 }
 document.getElementById('saveNoteBtn').onclick = async ()=>{
   const text = document.getElementById('noteText').value.trim();
   if(!text) return;
-  const { error } = await sb.from('notes').insert({ user_id: currentUser.id, content: text });
+  let photo_path = null;
+  if(notePhotoFile){ photo_path = await uploadPhoto(notePhotoFile, 'note'); if(photo_path===undefined) return; }
+  const { error } = await sb.from('notes').insert({ user_id: currentUser.id, content: text, photo_path });
   if(error){ showToast('Could not save: '+error.message); return; }
   document.getElementById('noteText').value=''; document.getElementById('noteComposer').classList.remove('show');
+  notePhotoFile=null; document.getElementById('notePhotoPreview').classList.remove('show'); document.getElementById('notePhotoInput').value='';
   showToast('Note saved'); loadNotes(); loadFeed();
 };
 
-function cardHtml(row, type){
+/* ---------- Reactions & comments ---------- */
+async function loadReactionsAndComments(types){
+  const [{data:reactions},{data:comments}] = await Promise.all([
+    sb.from('entry_reactions').select('*').in('entry_type', types),
+    sb.from('entry_comments').select('*, profiles(name)').in('entry_type', types).order('created_at'),
+  ]);
+  return { reactions: groupBy(reactions, 'entry_id'), comments: groupBy(comments, 'entry_id') };
+}
+
+function cardHtml(row, type, reactionsByEntry, commentsByEntry){
   const p = row.profiles || {};
   const name = p.name || 'Someone';
   const avatarHtml = p.avatar_url ? `<img src="${p.avatar_url}">` : initials(name);
   const badge = type==='day' ? '<span class="badge day">Day summary</span>' : '<span class="badge note">Thought</span>';
-  return `<div class="card">
+  const isOwner = currentUser && row.user_id === currentUser.id;
+  const photoHtml = row.photo_path ? `<img class="card-photo" src="${photoUrl(row.photo_path)}" onclick="window.open(this.src,'_blank')">` : '';
+
+  const myReactions = (reactionsByEntry[row.id]||[]);
+  const reactionBtns = REACTIONS.map(emoji=>{
+    const count = myReactions.filter(r=>r.emoji===emoji).length;
+    const active = currentUser && myReactions.some(r=>r.emoji===emoji && r.user_id===currentUser.id);
+    return `<button class="reaction-btn ${active?'active':''}" data-react="${emoji}">${emoji}${count?' '+count:''}</button>`;
+  }).join('');
+
+  const myComments = (commentsByEntry[row.id]||[]);
+  const commentsHtml = myComments.map(c=>`<div class="comment-row"><b>${escapeHtml((c.profiles&&c.profiles.name)||'Someone')}:</b> ${escapeHtml(c.content)}</div>`).join('');
+
+  const editDeleteBtns = isOwner ? `<button class="icon-btn" data-edit="1">✏️ Edit</button><button class="icon-btn" data-delete="1">🗑</button>` : '';
+
+  return `<div class="card" data-id="${row.id}" data-type="${type}" data-photo="${row.photo_path||''}">
+    ${photoHtml}
     <div class="meta">
       <div class="mini-avatar">${avatarHtml}</div>
       <span class="name">${escapeHtml(name)}</span>
@@ -456,8 +631,78 @@ function cardHtml(row, type){
       <span class="time">${relTime(row.created_at)}</span>
       ${badge}
     </div>
-    <div class="content">${escapeHtml(row.content)}</div>
+    <div class="content" data-raw="${escapeHtml(row.content)}">${escapeHtml(row.content)}</div>
+    <div class="card-actions">
+      ${reactionBtns}
+      <div class="spacer"></div>
+      <button class="comment-toggle" data-toggle-comments="1">💬 ${myComments.length||''} ${myComments.length===1?'comment':'comments'}</button>
+      ${editDeleteBtns}
+    </div>
+    <div class="comments-box">
+      ${commentsHtml}
+      <div class="comment-input-row">
+        <input type="text" placeholder="Write a comment...">
+        <button data-send-comment="1">Send</button>
+      </div>
+    </div>
   </div>`;
+}
+
+function wireCardActions(container){
+  container.querySelectorAll('.card').forEach(card=>{
+    const id = card.dataset.id, type = card.dataset.type;
+    const table = type==='day' ? 'day_summaries' : 'notes';
+    const reload = type==='day' ? loadDays : loadNotes;
+
+    card.querySelectorAll('.reaction-btn').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const emoji = btn.dataset.react;
+        const active = btn.classList.contains('active');
+        if(active){
+          await sb.from('entry_reactions').delete().eq('entry_type', type).eq('entry_id', id).eq('user_id', currentUser.id).eq('emoji', emoji);
+        } else {
+          await sb.from('entry_reactions').insert({ entry_type:type, entry_id:id, user_id:currentUser.id, emoji });
+        }
+        reload(); loadFeed();
+      };
+    });
+
+    const commentsBox = card.querySelector('.comments-box');
+    const toggleBtn = card.querySelector('[data-toggle-comments]');
+    if(toggleBtn) toggleBtn.onclick = ()=> commentsBox.classList.toggle('show');
+    const sendBtn = card.querySelector('[data-send-comment]');
+    if(sendBtn) sendBtn.onclick = async ()=>{
+      const input = card.querySelector('.comment-input-row input');
+      const text = input.value.trim();
+      if(!text) return;
+      await sb.from('entry_comments').insert({ entry_type:type, entry_id:id, user_id:currentUser.id, content:text });
+      input.value='';
+      reload(); loadFeed();
+    };
+
+    const editBtn = card.querySelector('[data-edit]');
+    if(editBtn) editBtn.onclick = ()=>{
+      const contentEl = card.querySelector('.content');
+      const raw = contentEl.dataset.raw;
+      contentEl.innerHTML = `<textarea>${raw}</textarea><div class="edit-row"><button class="btn ghost" data-cancel-edit="1">Cancel</button><button class="btn primary" data-save-edit="1">Save</button></div>`;
+      card.querySelector('[data-cancel-edit]').onclick = ()=> reload();
+      card.querySelector('[data-save-edit]').onclick = async ()=>{
+        const newText = card.querySelector('.content textarea').value.trim();
+        if(!newText) return;
+        await sb.from(table).update({ content:newText }).eq('id', id);
+        showToast('Updated'); reload(); loadFeed();
+      };
+    };
+
+    const deleteBtn = card.querySelector('[data-delete]');
+    if(deleteBtn) deleteBtn.onclick = async ()=>{
+      if(!confirm('Delete this entry? This cannot be undone.')) return;
+      const photoPath = card.dataset.photo;
+      await sb.from(table).delete().eq('id', id);
+      if(photoPath) await deletePhoto(photoPath);
+      showToast('Deleted'); reload(); loadFeed();
+    };
+  });
 }
 
 /* ---------- Feed (days + notes combined) ---------- */
@@ -473,7 +718,9 @@ async function loadFeed(){
   const list = document.getElementById('feedList');
   document.getElementById('dayCount').textContent = combined.length ? `${combined.length} update${combined.length===1?'':'s'} from the team` : '';
   if(!combined.length){ list.innerHTML = '<div class="empty">Nothing shared yet. Add a day summary, a note, or start examining a chair to get things going.</div>'; return; }
-  list.innerHTML = combined.map(row=>cardHtml(row,row._type)).join('');
+  const { reactions, comments } = await loadReactionsAndComments(['day','note']);
+  list.innerHTML = combined.map(row=>cardHtml(row,row._type, reactions, comments)).join('');
+  wireCardActions(list);
 }
 
 /* ---------- Chairs ---------- */
@@ -504,7 +751,6 @@ document.getElementById('newChairBtn').onclick = async ()=>{
   if(!name || !name.trim()) return;
   const { data, error } = await sb.from('chairs').insert({ name: name.trim(), created_by: currentUser.id }).select().single();
   if(error){ showToast('Could not create chair: '+error.message); return; }
-  // seed default checklist items
   const items = DEFAULT_ITEMS.map((label,i)=>({ chair_id:data.id, label, sort_order:i }));
   await sb.from('chair_items').insert(items);
   loadChairs();
@@ -516,9 +762,23 @@ async function openChair(id){
   switchView('chairDetailView');
   const { data: chair } = await sb.from('chairs').select('*').eq('id', id).single();
   document.getElementById('chairNameInput').value = chair.name;
+  const preview = document.getElementById('chairPhotoPreview'), img = document.getElementById('chairPhotoImg');
+  if(chair.photo_path){ img.src = photoUrl(chair.photo_path); preview.classList.add('show'); }
+  else { preview.classList.remove('show'); img.src=''; }
   await loadChairItems();
 }
 document.getElementById('backToChairs').onclick = ()=>{ currentChairId=null; switchView('chairsView'); loadChairs(); };
+
+document.getElementById('deleteChairBtn').onclick = async ()=>{
+  if(!confirm('Delete this chair and its whole checklist? This cannot be undone.')) return;
+  const { data: chair } = await sb.from('chairs').select('photo_path').eq('id', currentChairId).single();
+  const { data: items } = await sb.from('chair_items').select('photo_path').eq('chair_id', currentChairId);
+  await sb.from('chairs').delete().eq('id', currentChairId);
+  if(chair && chair.photo_path) await deletePhoto(chair.photo_path);
+  (items||[]).forEach(i=>{ if(i.photo_path) deletePhoto(i.photo_path); });
+  showToast('Chair deleted');
+  currentChairId = null; switchView('chairsView'); loadChairs();
+};
 
 let chairNameTimer;
 document.getElementById('chairNameInput').addEventListener('input', (e)=>{
@@ -529,18 +789,44 @@ document.getElementById('chairNameInput').addEventListener('input', (e)=>{
   }, 500);
 });
 
+document.getElementById('chairPhotoBtn').onclick = ()=> document.getElementById('chairPhotoInput').click();
+document.getElementById('chairPhotoInput').onchange = async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const path = await uploadPhoto(file, 'chair');
+  if(!path) return;
+  const { data: old } = await sb.from('chairs').select('photo_path').eq('id', currentChairId).single();
+  await sb.from('chairs').update({ photo_path: path }).eq('id', currentChairId);
+  if(old && old.photo_path) deletePhoto(old.photo_path);
+  document.getElementById('chairPhotoImg').src = photoUrl(path);
+  document.getElementById('chairPhotoPreview').classList.add('show');
+  showToast('Photo added');
+};
+document.getElementById('chairPhotoRemove').onclick = async ()=>{
+  const { data: old } = await sb.from('chairs').select('photo_path').eq('id', currentChairId).single();
+  await sb.from('chairs').update({ photo_path: null }).eq('id', currentChairId);
+  if(old && old.photo_path) deletePhoto(old.photo_path);
+  document.getElementById('chairPhotoPreview').classList.remove('show');
+  document.getElementById('chairPhotoInput').value='';
+};
+
 async function loadChairItems(){
   const { data: items } = await sb.from('chair_items').select('*').eq('chair_id', currentChairId).order('sort_order');
   const list = document.getElementById('chairItemsList');
   if(!items || !items.length){ list.innerHTML = '<div class="empty">No checklist items yet.</div>'; return; }
   list.innerHTML = items.map(item=>`
-    <div class="checklist-item" data-id="${item.id}">
+    <div class="checklist-item" data-id="${item.id}" data-photo="${item.photo_path||''}">
       <div class="label-row"><span class="label">${escapeHtml(item.label)}</span></div>
       <div class="status-toggle">
         <button class="good ${item.status==='good'?'active':''}" data-status="good">Good</button>
         <button class="problem ${item.status==='problem'?'active':''}" data-status="problem">Has a problem</button>
       </div>
       <textarea class="problem-note ${item.status==='problem'?'show':''}" placeholder="What's wrong with it?">${escapeHtml(item.note||'')}</textarea>
+      <div class="item-photo-row">
+        <button class="item-photo-btn" data-photo-btn="1">📷 ${item.photo_path?'Change photo':'Add photo'}</button>
+        <input type="file" accept="image/*" style="display:none">
+        ${item.photo_path ? `<img class="item-photo-thumb" src="${photoUrl(item.photo_path)}" onclick="window.open(this.src,'_blank')">` : ''}
+      </div>
     </div>
   `).join('');
 
@@ -564,6 +850,20 @@ async function loadChairItems(){
         showToast('Saved');
       }, 600);
     });
+    const photoBtn = el.querySelector('[data-photo-btn]');
+    const photoInput = el.querySelector('input[type=file]');
+    photoBtn.onclick = ()=> photoInput.click();
+    photoInput.onchange = async ()=>{
+      const file = photoInput.files[0];
+      if(!file) return;
+      const path = await uploadPhoto(file, 'chair-item');
+      if(!path) return;
+      const oldPath = el.dataset.photo;
+      await sb.from('chair_items').update({ photo_path: path }).eq('id', itemId);
+      if(oldPath) deletePhoto(oldPath);
+      showToast('Photo added');
+      loadChairItems();
+    };
   });
 }
 
@@ -586,6 +886,8 @@ function subscribeRealtime(){
       loadChairs();
       if(currentChairId) loadChairItems();
     })
+    .on('postgres_changes', { event:'*', schema:'public', table:'entry_reactions' }, ()=>{ loadDays(); loadNotes(); loadFeed(); })
+    .on('postgres_changes', { event:'*', schema:'public', table:'entry_comments' }, ()=>{ loadDays(); loadNotes(); loadFeed(); })
     .subscribe();
 }
 
