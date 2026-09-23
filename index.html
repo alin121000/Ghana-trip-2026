@@ -13,7 +13,7 @@
   values (Project Settings → API in your Supabase dashboard).
 ============================================================= -->
 <script>
- const SUPABASE_URL = "https://tualeosesvnfdluzjujr.supabase.co";
+  const SUPABASE_URL = "https://tualeosesvnfdluzjujr.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWxlb3Nlc3ZuZmRsdXpqdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4ODE5ODIsImV4cCI6MjEwNTQ1Nzk4Mn0.juqTCS0aogVRdPwENEKCDuhPasZM-eY_vGQRdBr0j_g";
 </script>
 
@@ -134,6 +134,17 @@
     border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-size:13px;
     cursor:pointer; white-space:nowrap;
   }
+  .export-menu-wrap{position:relative;}
+  .export-menu{
+    position:absolute; top:calc(100% + 6px); inset-inline-end:0; background:var(--surface); border:1px solid var(--line);
+    border-radius:10px; box-shadow:0 6px 18px rgba(20,18,14,.12); display:none; flex-direction:column;
+    min-width:130px; overflow:hidden; z-index:20;
+  }
+  .export-menu.show{display:flex;}
+  .export-menu button{
+    background:none; border:none; padding:11px 14px; text-align:start; font-size:13.5px; color:var(--ink); cursor:pointer;
+  }
+  .export-menu button:hover{background:var(--bg);}
 
   .add-toggle{
     width:100%; display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:12px;
@@ -342,7 +353,13 @@
       <div class="view" id="daysView">
         <div class="toolbar-row">
           <button class="add-toggle" data-composer="dayComposer"><span class="plus">+</span> <span data-i18n="addDay">Add a day summary</span></button>
-          <button class="export-btn" id="exportDaysBtn">⭳ <span data-i18n="export">Export</span></button>
+          <div class="export-menu-wrap">
+            <button class="export-btn" id="exportDaysBtn">⭳ <span data-i18n="export">Export</span></button>
+            <div class="export-menu" id="exportDaysMenu">
+              <button data-format="pdf">PDF</button>
+              <button data-format="word">Word</button>
+            </div>
+          </div>
         </div>
         <div class="composer" id="dayComposer">
           <input type="date" id="dayDate">
@@ -386,7 +403,13 @@
       <div class="view" id="chairsView">
         <div class="toolbar-row">
           <button class="add-toggle" id="newChairBtn"><span class="plus">+</span> <span data-i18n="examineChair">Examine a new chair</span></button>
-          <button class="export-btn" id="exportChairsBtn">⭳ <span data-i18n="export">Export</span></button>
+          <div class="export-menu-wrap">
+            <button class="export-btn" id="exportChairsBtn">⭳ <span data-i18n="export">Export</span></button>
+            <div class="export-menu" id="exportChairsMenu">
+              <button data-format="pdf">PDF</button>
+              <button data-format="word">Word</button>
+            </div>
+          </div>
         </div>
         <div id="chairsList"></div>
       </div>
@@ -510,8 +533,11 @@ const T = {
     confirmDeleteChair:"Delete this chair and its whole checklist? This cannot be undone.",
     promptChairName:"Chair name (e.g. model or batch code):",
     promptItemName:"Checklist item name:",
-    csvDate:"Date", csvAuthor:"Author", csvSummary:"Summary",
-    csvChair:"Chair", csvItem:"Item", csvStatus:"Status", csvNote:"Note", csvUpdatedBy:"Updated by", csvUpdatedAt:"Updated at",
+    exportPdf:"PDF", exportWord:"Word",
+    exportDaysTitle:"Day Summaries", exportChairsTitle:"Chair Inspections",
+    colDate:"Date", colAuthor:"Author", colChair:"Chair", colItem:"Item", colStatus:"Status", colNote:"Note", colUpdatedBy:"Updated by",
+    statusGood:"Good", statusProblem:"Problem", statusUnchecked:"Not checked",
+    toastPopupBlocked:"Please allow pop-ups to export as PDF, then try again",
     someone:"Someone"
   },
   he: {
@@ -568,8 +594,11 @@ const T = {
     confirmDeleteChair:"למחוק את הכיסא ואת כל רשימת הבדיקה שלו? לא ניתן לשחזר לאחר מכן.",
     promptChairName:"שם הכיסא (למשל דגם או מספר אצווה):",
     promptItemName:"שם פריט הבדיקה:",
-    csvDate:"תאריך", csvAuthor:"מאת", csvSummary:"סיכום",
-    csvChair:"כיסא", csvItem:"פריט", csvStatus:"סטטוס", csvNote:"הערה", csvUpdatedBy:"עודכן על ידי", csvUpdatedAt:"עודכן בתאריך",
+    exportPdf:"PDF", exportWord:"Word",
+    exportDaysTitle:"סיכומי ימים", exportChairsTitle:"בדיקות כיסאות",
+    colDate:"תאריך", colAuthor:"מאת", colChair:"כיסא", colItem:"פריט", colStatus:"סטטוס", colNote:"הערה", colUpdatedBy:"עודכן על ידי",
+    statusGood:"תקין", statusProblem:"יש בעיה", statusUnchecked:"לא נבדק",
+    toastPopupBlocked:"יש לאשר חלונות קופצים כדי לייצא PDF, ואז לנסות שוב",
     someone:"מישהו"
   }
 };
@@ -644,34 +673,108 @@ async function deletePhoto(path){
   await sb.storage.from('trip-photos').remove([path]);
 }
 
-/* ---------- CSV export ---------- */
-function toCsvValue(v){ if(v===null||v===undefined) return ''; const s=String(v).replace(/"/g,'""'); return /[",\n]/.test(s) ? `"${s}"` : s; }
-function downloadCsv(filename, rows){
-  const csv = rows.map(r=>r.map(toCsvValue).join(',')).join('\n');
-  const blob = new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'});
+/* ---------- PDF / Word export ---------- */
+function statusLabel(s){ return s==='good'?t('statusGood'):s==='problem'?t('statusProblem'):t('statusUnchecked'); }
+
+function buildExportDoc(title, bodyHtml, forWord){
+  const dir = LANG === 'he' ? 'rtl' : 'ltr';
+  const align = LANG === 'he' ? 'right' : 'left';
+  const bodyFont = LANG === 'he' ? "'Heebo', Arial, sans-serif" : "'Work Sans', Arial, sans-serif";
+  const headFont = LANG === 'he' ? "'Heebo', Georgia, serif" : "'Fraunces', Georgia, serif";
+  const wordNs = forWord ? ` xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'` : '';
+  const autoPrint = forWord ? '' : `<script>window.onload=function(){ setTimeout(function(){ window.print(); }, 350); };<\/script>`;
+  return `<!DOCTYPE html><html${wordNs} lang="${LANG}" dir="${dir}"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
+  <style>
+    body{font-family:${bodyFont}; color:#2B2A25; padding:28px; max-width:760px; margin:0 auto;}
+    h1{font-family:${headFont}; font-size:25px; margin:0 0 2px;}
+    .subtitle{color:#857F6D; font-size:12.5px; margin-bottom:22px;}
+    .entry{margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #E3DFD0;}
+    .entry-head{font-size:13.5px; margin-bottom:6px; color:#2F6B65; font-weight:600;}
+    .entry-photo{max-width:100%; max-height:280px; border-radius:8px; margin-bottom:8px; display:block;}
+    .entry-content{font-size:14px; line-height:1.6; white-space:pre-wrap;}
+    .chair-block{margin-bottom:28px; page-break-inside:avoid;}
+    .chair-block h2{font-family:${headFont}; font-size:18px; margin:0 0 8px;}
+    .chair-photo{max-width:220px; border-radius:8px; margin-bottom:10px; display:block;}
+    table{width:100%; border-collapse:collapse; margin-bottom:6px;}
+    th,td{border:1px solid #E3DFD0; padding:7px 9px; font-size:12.5px; text-align:${align}; vertical-align:top;}
+    th{background:#F3F1E7;}
+    .status-good{color:#4C7A52; font-weight:600;}
+    .status-problem{color:#B25D45; font-weight:600;}
+    @media print{ body{padding:0;} }
+  </style></head><body>
+  <h1>${escapeHtml(title)}</h1>
+  <div class="subtitle">${new Date().toLocaleDateString(LANG==='he'?'he-IL':undefined,{year:'numeric',month:'long',day:'numeric'})}</div>
+  ${bodyHtml}
+  ${autoPrint}
+  </body></html>`;
+}
+function downloadWordDoc(html, filename){
+  const blob = new Blob(['\ufeff', html], {type:'application/msword'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 }
-document.getElementById('exportDaysBtn').onclick = async ()=>{
+
+async function buildDaysExportBody(){
   const { data } = await sb.from('day_summaries').select('*, profiles(name)').order('entry_date');
-  const rows = [[t('csvDate'),t('csvAuthor'),t('csvSummary')]];
-  (data||[]).forEach(r=> rows.push([r.entry_date, (r.profiles&&r.profiles.name)||'', r.content]));
-  downloadCsv('day-summaries.csv', rows);
-};
-document.getElementById('exportChairsBtn').onclick = async ()=>{
+  return (data||[]).map(r=>`
+    <div class="entry">
+      <div class="entry-head">${escapeHtml(r.entry_date)} — ${escapeHtml((r.profiles&&r.profiles.name)||'')}</div>
+      ${r.photo_path ? `<img class="entry-photo" src="${photoUrl(r.photo_path)}">` : ''}
+      <div class="entry-content">${escapeHtml(r.content)}</div>
+    </div>`).join('') || `<p>${t('emptyDays')}</p>`;
+}
+async function buildChairsExportBody(){
   const { data: chairs } = await sb.from('chairs').select('*').order('created_at');
   const { data: items } = await sb.from('chair_items').select('*, profiles(name)').order('sort_order');
   const byChair = groupBy(items, 'chair_id');
-  const rows = [[t('csvChair'),t('csvItem'),t('csvStatus'),t('csvNote'),t('csvUpdatedBy'),t('csvUpdatedAt')]];
-  (chairs||[]).forEach(c=>{
-    (byChair[c.id]||[]).forEach(i=>{
-      rows.push([c.name, i.label, i.status, i.note||'', (i.profiles&&i.profiles.name)||'', i.updated_at||'']);
-    });
+  if(!chairs || !chairs.length) return `<p>${t('emptyChairs')}</p>`;
+  return chairs.map(c=>{
+    const rows = (byChair[c.id]||[]).map(i=>`
+      <tr>
+        <td>${escapeHtml(i.label)}</td>
+        <td class="status-${i.status}">${escapeHtml(statusLabel(i.status))}</td>
+        <td>${escapeHtml(i.note||'')}</td>
+        <td>${escapeHtml((i.profiles&&i.profiles.name)||'')}</td>
+      </tr>`).join('');
+    return `<div class="chair-block">
+      <h2>${escapeHtml(c.name)}</h2>
+      ${c.photo_path ? `<img class="chair-photo" src="${photoUrl(c.photo_path)}">` : ''}
+      <table>
+        <tr><th>${t('colItem')}</th><th>${t('colStatus')}</th><th>${t('colNote')}</th><th>${t('colUpdatedBy')}</th></tr>
+        ${rows}
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function wireExportMenu(btnId, menuId, buildBody, titleKey, wordFilename){
+  const btn = document.getElementById(btnId), menu = document.getElementById(menuId);
+  btn.onclick = (e)=>{ e.stopPropagation(); menu.classList.toggle('show'); };
+  menu.querySelectorAll('button').forEach(b=>{
+    b.onclick = async (e)=>{
+      e.stopPropagation();
+      menu.classList.remove('show');
+      const format = b.dataset.format;
+      let win = null;
+      if(format === 'pdf') win = window.open('', '_blank'); // open synchronously to dodge popup blockers
+      const bodyHtml = await buildBody();
+      const doc = buildExportDoc(t(titleKey), bodyHtml, format === 'word');
+      if(format === 'pdf'){
+        if(!win){ showToast(t('toastPopupBlocked')); return; }
+        win.document.open(); win.document.write(doc); win.document.close();
+      } else {
+        downloadWordDoc(doc, wordFilename);
+      }
+    };
   });
-  downloadCsv('chair-inspections.csv', rows);
-};
+}
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.export-menu.show').forEach(m=>m.classList.remove('show'));
+});
+wireExportMenu('exportDaysBtn','exportDaysMenu', buildDaysExportBody, 'exportDaysTitle', 'day-summaries.doc');
+wireExportMenu('exportChairsBtn','exportChairsMenu', buildChairsExportBody, 'exportChairsTitle', 'chair-inspections.doc');
 
 /* ---------- Auth ---------- */
 document.getElementById('googleSignIn').onclick = async ()=>{
