@@ -522,6 +522,7 @@ const T = {
     justNow:"just now", minAgo:"m ago", hourAgo:"h ago", yesterday:"yesterday",
     toastSaved:"Saved", toastEntrySaved:"Entry saved", toastDaySaved:"Day summary saved", toastNoteSaved:"Note saved",
     toastUpdated:"Updated", toastDeleted:"Deleted",
+    toastDeleteFailed:"Could not delete — you may not have permission. ",
     toastPhotoTooLarge:"Photo is too large (max 8MB)",
     toastPhotoFailed:"Photo upload failed: ",
     toastSaveFailed:"Could not save: ",
@@ -583,6 +584,7 @@ const T = {
     justNow:"ממש עכשיו", minAgo:" דק׳", hourAgo:" שע׳", yesterday:"אתמול",
     toastSaved:"נשמר", toastEntrySaved:"הרשומה נשמרה", toastDaySaved:"סיכום היום נשמר", toastNoteSaved:"הפתק נשמר",
     toastUpdated:"עודכן", toastDeleted:"נמחק",
+    toastDeleteFailed:"לא ניתן למחוק — ייתכן שאין לך הרשאה. ",
     toastPhotoTooLarge:"התמונה גדולה מדי (מקסימום 8MB)",
     toastPhotoFailed:"העלאת התמונה נכשלה: ",
     toastSaveFailed:"לא ניתן היה לשמור: ",
@@ -778,7 +780,8 @@ wireExportMenu('exportChairsBtn','exportChairsMenu', buildChairsExportBody, 'exp
 
 /* ---------- Auth ---------- */
 document.getElementById('googleSignIn').onclick = async ()=>{
-  const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: window.location.href } });
+  const cleanUrl = window.location.origin + window.location.pathname;
+  const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: cleanUrl } });
   if(error) document.getElementById('authError').textContent = error.message;
 };
 document.getElementById('avatarBtn').onclick = ()=> document.getElementById('signOutSheet').classList.add('show');
@@ -1106,7 +1109,11 @@ function wireCardActions(container){
     if(deleteBtn) deleteBtn.onclick = async ()=>{
       if(!confirm(t('confirmDeleteEntry'))) return;
       const photoPath = card.dataset.photo, audioPath = card.dataset.audio;
-      await sb.from(table).delete().eq('id', id);
+      const { data: removed, error } = await sb.from(table).delete().eq('id', id).select('id');
+      if(error || !removed || !removed.length){
+        showToast(t('toastDeleteFailed') + (error ? error.message : ''));
+        return;
+      }
       if(photoPath) await deletePhoto(photoPath);
       if(audioPath) await deletePhoto(audioPath);
       showToast(t('toastDeleted')); reload(); loadFeed();
@@ -1184,7 +1191,11 @@ document.getElementById('deleteChairBtn').onclick = async ()=>{
   if(!confirm(t('confirmDeleteChair'))) return;
   const { data: chair } = await sb.from('chairs').select('photo_path').eq('id', currentChairId).single();
   const { data: items } = await sb.from('chair_items').select('photo_path').eq('chair_id', currentChairId);
-  await sb.from('chairs').delete().eq('id', currentChairId);
+  const { data: removed, error } = await sb.from('chairs').delete().eq('id', currentChairId).select('id');
+  if(error || !removed || !removed.length){
+    showToast(t('toastDeleteFailed') + (error ? error.message : ''));
+    return;
+  }
   if(chair && chair.photo_path) await deletePhoto(chair.photo_path);
   (items||[]).forEach(i=>{ if(i.photo_path) deletePhoto(i.photo_path); });
   showToast(t('toastDeleted'));
